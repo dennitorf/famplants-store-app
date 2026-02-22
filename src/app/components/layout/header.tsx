@@ -17,7 +17,7 @@ export default function Header() {
                 <div className="flex flex-wrap gap-3">
                     <button
                         type="button"
-                        className="rounded-md bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:opacity-90"
+                        className="rounded-md bg-[#0A3D27] px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
                     >
                         Shop now
                     </button>
