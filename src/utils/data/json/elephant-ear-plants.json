@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "source": "notion_markdown_export",
+    "title": "Elephant Ear Plants",
+    "generatedAtUtc": "2026-02-24T02:25:44Z"
+  },
+  "plant": {
+    "name": "Elephant Ear Plants",
+    "slug": "elephant-ear-plants"
+  },
+  "content": {
+    "mustKnowEssentials": {
+      "title": "Must-Know Essentials for Thriving Growth",
+      "body": null
+    },
+    "tableOfContents": [],
+    "sections": [
+      {
+        "order": 1,
+        "title": "Must-Know Essentials for Thriving Growth 🌱",
+        "key": "must-know-essentials-for-thriving-growth",
+        "blocks": [
+          {
+            "heading": null,
+            "body": "For Colocasia esculenta, also known as the Elephant Ear plant, ensure bright, indirect light, use well-draining soil with a pH of 5.5-6.5, and keep the soil consistently moist but not waterlogged. The plant thrives in high humidity and temperatures between 65-85°F (18-29°C). Fertilize every 4-6 weeks with a balanced fertilizer (10-10-10 or 20-20-20) for overall health, or every 2-4 weeks with a high-nitrogen fertilizer (20-10-10) during the growing season for vigorous leaf growth. For yellowing leaves, trim them off if the stem is healthy, but if both the leaf and stem are damaged, remove the entire stem down to the base to prevent the plant from wasting energy. This also improves air circulation, reducing the risk of pests and disease. Stop fertilizing in winter when the plant enters dormancy. \n\n[Elephant Ear Plants](Elephant%20Ear%20Plants/Elephant%20Ear%20Plants%20249f48502f608141bb9ee60918b5d318.csv)",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  "media": {
+    "assets": []
+  }
+}

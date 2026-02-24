@@ -1,0 +1,170 @@
+[
+  {
+    "slug": "aglaonema",
+    "name": "Aglaonema",
+    "jsonPath": "json/aglaonema.json",
+    "coverImage": "plant-img/aglaonema/2675a8e8-7f6f-4434-8b80-df443bb7dc3d.png",
+    "imageCount": 12,
+    "sectionCount": 26
+  },
+  {
+    "slug": "banana",
+    "name": "Banana",
+    "jsonPath": "json/banana.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "bird-of-paradise",
+    "name": "Bird of Paradise",
+    "jsonPath": "json/bird-of-paradise.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "blackberry",
+    "name": "Blackberry",
+    "jsonPath": "json/blackberry.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "blueberries",
+    "name": "Blueberries",
+    "jsonPath": "json/blueberries.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "camelia-tea",
+    "name": "Camelia Tea",
+    "jsonPath": "json/camelia-tea.json",
+    "coverImage": "plant-img/camelia-tea/FLOWER.jpg",
+    "imageCount": 7,
+    "sectionCount": 26
+  },
+  {
+    "slug": "cherry",
+    "name": "Cherry",
+    "jsonPath": "json/cherry.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "citronella",
+    "name": "Citronella",
+    "jsonPath": "json/citronella.json",
+    "coverImage": "plant-img/citronella/citronella.webp",
+    "imageCount": 1,
+    "sectionCount": 1
+  },
+  {
+    "slug": "coffee-arabica",
+    "name": "Coffee Arabica",
+    "jsonPath": "json/coffee-arabica.json",
+    "coverImage": "plant-img/coffee-arabica/1.png",
+    "imageCount": 7,
+    "sectionCount": 22
+  },
+  {
+    "slug": "elephant-ear-plants",
+    "name": "Elephant Ear Plants",
+    "jsonPath": "json/elephant-ear-plants.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "fig-tree",
+    "name": "Fig Tree",
+    "jsonPath": "json/fig-tree.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "ginger",
+    "name": "Ginger",
+    "jsonPath": "json/ginger.json",
+    "coverImage": "plant-img/ginger/Gardening_Zone_USA.png",
+    "imageCount": 2,
+    "sectionCount": 25
+  },
+  {
+    "slug": "goji",
+    "name": "Goji",
+    "jsonPath": "json/goji.json",
+    "coverImage": "plant-img/goji/Gardening_Zone_USA.png",
+    "imageCount": 5,
+    "sectionCount": 26
+  },
+  {
+    "slug": "lousiana-irises",
+    "name": "Lousiana Irises",
+    "jsonPath": "json/lousiana-irises.json",
+    "coverImage": "plant-img/lousiana-irises/buscando_en_cell.png",
+    "imageCount": 1,
+    "sectionCount": 3
+  },
+  {
+    "slug": "mulberry",
+    "name": "Mulberry",
+    "jsonPath": "json/mulberry.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "olive",
+    "name": "Olive",
+    "jsonPath": "json/olive.json",
+    "coverImage": "plant-img/olive/Arbequina_Oive_Tree_fruit.jpeg",
+    "imageCount": 5,
+    "sectionCount": 26
+  },
+  {
+    "slug": "passion-fruit-maracuya",
+    "name": "Passion Fruit (Maracuya)",
+    "jsonPath": "json/passion-fruit-maracuya.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "pineapple",
+    "name": "Pineapple",
+    "jsonPath": "json/pineapple.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "polka-dot-plants",
+    "name": "Polka Dot Plants",
+    "jsonPath": "json/polka-dot-plants.json",
+    "coverImage": "plant-img/polka-dot-plants/2fafd7f9-eac7-48c4-afe0-63ab41cc55aa.png",
+    "imageCount": 6,
+    "sectionCount": 26
+  },
+  {
+    "slug": "pomegranate",
+    "name": "Pomegranate",
+    "jsonPath": "json/pomegranate.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  },
+  {
+    "slug": "rose-desert",
+    "name": "Rose Desert",
+    "jsonPath": "json/rose-desert.json",
+    "coverImage": null,
+    "imageCount": 0,
+    "sectionCount": 1
+  }
+]

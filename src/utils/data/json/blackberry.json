@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "source": "notion_markdown_export",
+    "title": "Blackberry",
+    "generatedAtUtc": "2026-02-24T02:25:44Z"
+  },
+  "plant": {
+    "name": "Blackberry",
+    "slug": "blackberry"
+  },
+  "content": {
+    "mustKnowEssentials": {
+      "title": "Must-Know Essentials for Thriving Growth",
+      "body": "Created: August 8, 2025 7:01 PM"
+    },
+    "tableOfContents": [],
+    "sections": [
+      {
+        "order": 1,
+        "title": "Must-Know Essentials for Thriving Growth 🌱",
+        "key": "must-know-essentials-for-thriving-growth",
+        "blocks": [
+          {
+            "heading": null,
+            "body": "For optimal care of blackberry plants (*Rubus fruticosus*), provide full sun to ensure vigorous growth and maximize fruit production. Blackberries thrive in temperatures between 60-85°F (16-29°C) and moderate humidity. Use well-draining, slightly acidic soil with a pH of 5.5-7.0. Water regularly, keeping the soil consistently moist, especially during flowering and fruiting, but avoid waterlogging. Fertilize in early spring and again after harvest with a balanced fertilizer like 10-10-10 to support healthy growth and fruit development. Prune annually in late winter to remove old canes that have fruited, shape the plant, and encourage new cane growth for the next season's harvest. With proper care, blackberry plants will yield an abundant crop of flavorful, nutritious berries.\n\n[Blackberries](Blackberry/Blackberries%20249f48502f6081b79dbfc74b7c438d85.csv)",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  "media": {
+    "assets": []
+  }
+}

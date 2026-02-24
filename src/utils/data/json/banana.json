@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "source": "notion_markdown_export",
+    "title": "Banana",
+    "generatedAtUtc": "2026-02-24T02:25:44Z"
+  },
+  "plant": {
+    "name": "Banana",
+    "slug": "banana"
+  },
+  "content": {
+    "mustKnowEssentials": {
+      "title": "Must-Know Essentials for Thriving Growth",
+      "body": "Created: August 8, 2025 7:01 PM"
+    },
+    "tableOfContents": [],
+    "sections": [
+      {
+        "order": 1,
+        "title": "Must-Know Essentials for Thriving Growth 🌱",
+        "key": "must-know-essentials-for-thriving-growth",
+        "blocks": [
+          {
+            "heading": null,
+            "body": "For Musa spp., commonly known as banana plants, provide full sun to promote robust growth and fruit production. Use well-draining, slightly acidic soil with a pH of 5.5-6.5, and keep the soil consistently moist but not waterlogged. Bananas thrive in warm temperatures between 75-95°F (24-35°C) and high humidity. Fertilize every 2-4 weeks with a balanced fertilizer (10-10-10 or 20-20-20), or choose a high-potassium fertilizer (e.g., 8-10-12) during the growing season to support fruit development. For yellowing or dying leaves, trim them to improve air circulation and encourage the plant to direct energy toward new growth. As bananas are tropical and do not enter true dormancy, continue light fertilization through winter if kept in warm conditions, but reduce frequency to avoid nutrient buildup.\n\n[Untitled](Banana/Untitled%20249f48502f6081989deddf0aa6563f38.csv)",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  "media": {
+    "assets": []
+  }
+}

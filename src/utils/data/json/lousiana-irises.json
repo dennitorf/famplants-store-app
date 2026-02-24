@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "source": "notion_markdown_export",
+    "title": "Lousiana Irises",
+    "generatedAtUtc": "2026-02-24T02:25:44Z"
+  },
+  "plant": {
+    "name": "Lousiana Irises",
+    "slug": "lousiana-irises"
+  },
+  "content": {
+    "mustKnowEssentials": {
+      "title": "Must-Know Essentials for Thriving Growth",
+      "body": null
+    },
+    "tableOfContents": [],
+    "sections": [
+      {
+        "order": 1,
+        "title": "Welcome to Your Personalized Care Guide!",
+        "key": "welcome-to-your-personalized-care-guide",
+        "blocks": [
+          {
+            "heading": null,
+            "body": "",
+            "images": []
+          }
+        ]
+      },
+      {
+        "order": 2,
+        "title": "5 Keys to the Vigorous Growth of Lousiana Irises",
+        "key": "5-keys-to-the-vigorous-growth-of-lousiana-irises",
+        "blocks": [
+          {
+            "heading": null,
+            "body": "1-Full sun exposure:\n\nPrefers at least 6 hours of sunlight daily for optimal blooming.\n\n2-Moist, acidic soil:\n\n: Keep the soil consistently moist, but avoid waterlogging.\n\n3-Regular fertilization:\n\n Apply balanced fertilizer in spring and mid-summer to encourage strong growth.\n\n4-Good drainage:\n\nEnsure soil has proper drainage to avoid root rot while maintaining moisture.\n\n 5-Protection from harsh cold:\n\nMulch during winter to protect roots from freezing temperatures.",
+            "images": []
+          }
+        ]
+      },
+      {
+        "order": 3,
+        "title": "Select your plant and start learning more!",
+        "key": "select-your-plant-and-start-learning-more",
+        "blocks": [
+          {
+            "heading": null,
+            "body": "To get started, please select the plant you purchased from the gallery.  Once selected, you'll have access to an index with all the specific care information for your plant. From there, you can explore topics like soil type, watering, sunlight exposure, and much more to ensure your plant grows healthy and strong.\n\n![buscando en cell.png](plant-img/lousiana-irises/buscando_en_cell.png)\n\nIf you need further assistance, feel free to contact us at info.famplants@gmail.com\n\n[Lousiana Irises](Lousiana%20Irises/Lousiana%20Irises%20249f48502f6081f6862dc76755a5f568.csv)",
+            "images": [
+              "plant-img/lousiana-irises/buscando_en_cell.png"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "media": {
+    "assets": [
+      {
+        "path": "plant-img/lousiana-irises/buscando_en_cell.png",
+        "type": "png"
+      }
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "source": "notion_markdown_export",
+    "title": "Rose Desert",
+    "generatedAtUtc": "2026-02-24T02:25:44Z"
+  },
+  "plant": {
+    "name": "Rose Desert",
+    "slug": "rose-desert"
+  },
+  "content": {
+    "mustKnowEssentials": {
+      "title": "Must-Know Essentials for Thriving Growth",
+      "body": "We are excited to announce that these plants will be available soon in our store. 🌿 To stay updated and be among the first to know about the launch, we invite you to follow us on our Amazon store. Just click the link below and stay informed:"
+    },
+    "tableOfContents": [],
+    "sections": [
+      {
+        "order": 1,
+        "title": "Content",
+        "key": "content",
+        "blocks": [
+          {
+            "heading": null,
+            "body": "We are excited to announce that these plants will be available soon in our store. 🌿 To stay updated and be among the first to know about the launch, we invite you to follow us on our Amazon store. Just click the link below and stay informed:\n\nLink to Amazon Store : [Amazon.com: Fam Plants](https://www.amazon.com/stores/FamPlants/page/CD80BD2F-DF58-4AF2-98FE-FC90E89E1531?ref_=ast_bln)",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  "media": {
+    "assets": []
+  }
+}

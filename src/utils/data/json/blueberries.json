@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "source": "notion_markdown_export",
+    "title": "Blueberries",
+    "generatedAtUtc": "2026-02-24T02:25:44Z"
+  },
+  "plant": {
+    "name": "Blueberries",
+    "slug": "blueberries"
+  },
+  "content": {
+    "mustKnowEssentials": {
+      "title": "Must-Know Essentials for Thriving Growth",
+      "body": "Created: August 8, 2025 7:01 PM"
+    },
+    "tableOfContents": [],
+    "sections": [
+      {
+        "order": 1,
+        "title": "Must-Know Essentials for Thriving Growth 🌱",
+        "key": "must-know-essentials-for-thriving-growth",
+        "blocks": [
+          {
+            "heading": null,
+            "body": "For optimal care of blueberry plants (*Vaccinium spp.*), provide full sun to ensure healthy growth and maximize fruit production. Maintain temperatures between 60-85°F (16-29°C) and moderate to high humidity. Use well-draining, acidic soil with a pH of 4.5-5.5, which is essential for their nutrient uptake. Water regularly, keeping the soil consistently moist but not waterlogged, especially during dry spells. Fertilize every 4-6 weeks during the growing season with a fertilizer specifically formulated for acid-loving plants, such as one designed for blueberries or azaleas. Prune annually during late winter to remove dead or weak branches and encourage strong new growth. Proper pruning and care ensure a plentiful harvest of sweet and tangy blueberries.\n\n[Blueberries](Blueberries/Blueberries%20249f48502f6081b58558e53e10c53722.csv)",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  "media": {
+    "assets": []
+  }
+}
