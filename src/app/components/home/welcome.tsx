@@ -20,6 +20,7 @@ export default function Welcome() {
                     alt="Welcome"
                     fill
                     priority
+                    sizes="50vw"
                     className="object-cover object-right"
                 />
             </div>

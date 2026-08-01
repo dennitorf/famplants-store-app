@@ -1,45 +1,34 @@
-import Image from "next/image";
 import Link from "next/link";
+import FamilyCard from "@/app/components/common/family-card";
+import { EmptyState, ErrorState } from "@/app/components/common/async-state";
+import type { Family } from "@/models/api";
 
-export default function PlantCategoryShop() {
-    const plantCategories = [
-        {
-            name: "Air Purifying",
-            image: "AIR_PURIFYING.jpg",
-        },
-        {
-            name: "Pet Friendly",
-            image: "PET_FRIENDLY.jpg",
-        },
-        {
-            name: "Low Light",
-            image: "low_light.jpg",
-        },
-        {
-            name: "Easy Care",
-            image: "EASY_CARE.jpg",
-        },
-    ];
+interface PlantCategoryShopProps {
+  families: Family[];
+  error?: string;
+}
 
-    return (
-        <section className="py-8">
-            <h2 className="mb-5 text-center text-3xl font-bold text-foreground">Shop by Category</h2>
-            <div className="flex flex-wrap justify-center gap-4">
-                {plantCategories.map((category) => (
-                    <Link href="/plants" key={category.name} className="flex flex-col items-center gap-3 transition-transform hover:-translate-y-1">
-                        <Image
-                            src={`/img/${category.image}`}
-                            alt={category.name}
-                            width={256}
-                            height={256}
-                            className="h-64 w-64 object-cover"
-                        />
-                        <p className="text-center text-lg font-bold" style={{ color: "#15BC65" }}>
-                            {category.name}
-                        </p>
-                    </Link>
-                ))}
-            </div>
-        </section>
-    );
+export default function PlantCategoryShop({ families, error }: PlantCategoryShopProps) {
+  return (
+    <section className="py-8">
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <p className="eyebrow">Plant families</p>
+          <h2 className="mt-1 text-3xl font-bold text-foreground">Shop by family</h2>
+        </div>
+        <Link href="/families" className="text-sm font-bold text-[#12613f] hover:underline">
+          View all families
+        </Link>
+      </div>
+      {error ? (
+        <ErrorState message={error} />
+      ) : families.length ? (
+        <div className="catalog-grid">
+          {families.map((family) => <FamilyCard key={family.id} family={family} />)}
+        </div>
+      ) : (
+        <EmptyState title="No families yet" description="Published plant families will appear here." />
+      )}
+    </section>
+  );
 }
