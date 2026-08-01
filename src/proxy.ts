@@ -1,8 +1,42 @@
 import type { NextRequest } from "next/server";
-import { auth0 } from "@/lib/auth0";
+import { NextResponse } from "next/server";
+import { requiresReauthentication } from "@/lib/auth/reauthentication";
+import { auth0, auth0Audience } from "@/lib/auth0";
 
 export async function proxy(request: NextRequest) {
-  return auth0.middleware(request);
+  const response = await auth0.middleware(request);
+
+  if (!requiresFamPlantsAccessToken(request.nextUrl.pathname)) {
+    return response;
+  }
+
+  const session = await auth0.getSession(request);
+  if (!session?.user) {
+    return response;
+  }
+
+  try {
+    await auth0.getAccessToken(request, response, {
+      audience: auth0Audience,
+    });
+    return response;
+  } catch (error) {
+    if (!requiresReauthentication(error)) {
+      throw error;
+    }
+
+    const loginUrl = new URL("/auth/login", request.url);
+    loginUrl.searchParams.set(
+      "returnTo",
+      `${request.nextUrl.pathname}${request.nextUrl.search}`,
+    );
+    loginUrl.searchParams.set("prompt", "login");
+    return NextResponse.redirect(loginUrl);
+  }
+}
+
+function requiresFamPlantsAccessToken(pathname: string): boolean {
+  return pathname === "/profile" || pathname.startsWith("/gardens");
 }
 
 export const config = {

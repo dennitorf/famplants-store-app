@@ -41,6 +41,15 @@ async function getAccessTokenForRequest(): Promise<string | null> {
     })
       .then(async (response) => {
         if (!response.ok) {
+          if (response.status === 401) {
+            const errorBody = (await response.json().catch(() => null)) as {
+              reauthenticationRequired?: boolean;
+            } | null;
+
+            if (errorBody?.reauthenticationRequired) {
+              redirectToLogin();
+            }
+          }
           return null;
         }
 
@@ -86,11 +95,23 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401 && typeof window !== "undefined") {
       cachedAccessToken = null;
       cachedAccessTokenExpiresAt = 0;
-      window.location.assign("/auth/login");
+      redirectToLogin();
     }
     return Promise.reject(error);
   },
 );
+
+function redirectToLogin(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const returnTo = `${window.location.pathname}${window.location.search}`;
+  const loginUrl = new URL("/auth/login", window.location.origin);
+  loginUrl.searchParams.set("returnTo", returnTo);
+  loginUrl.searchParams.set("prompt", "login");
+  window.location.assign(loginUrl.toString());
+}
 
 export const apiClient = {
   get: <T = unknown>(url: string, config?: AxiosRequestConfig) =>
