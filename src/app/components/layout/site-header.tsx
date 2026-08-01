@@ -12,6 +12,14 @@ import {
 } from "lucide-react";
 import { auth0 } from "@/lib/auth0";
 import { PlantTagsService } from "@/utils/services/plants/plant-tags-service";
+import CartLink from "@/app/components/cart/cart-link";
+import { unstable_cache } from "next/cache";
+
+const loadMenuTags = unstable_cache(
+  () => PlantTagsService.getAll(1, 100),
+  ["site-header-plant-tags"],
+  { revalidate: 300 },
+);
 
 const links = [
   { href: "/products", label: "Shop" },
@@ -21,7 +29,7 @@ const links = [
 export default async function SiteHeader() {
   const [session, tagsResponse] = await Promise.all([
     auth0.getSession(),
-    PlantTagsService.getAll(1, 100).catch(() => null),
+    loadMenuTags().catch(() => null),
   ]);
   const user = session?.user;
   const tags = tagsResponse?.data ?? [];
@@ -81,6 +89,7 @@ export default async function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <CartLink />
           {user ? (
             <>
               <Link href="/profile" className="flex max-w-44 items-center gap-2 rounded-full px-3 py-2 text-sm text-[#254d3d] hover:bg-[#eaf6e5]">
@@ -98,7 +107,9 @@ export default async function SiteHeader() {
           )}
         </div>
 
-        <details className="relative md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
+          <CartLink />
+        <details className="relative">
           <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-full border border-emerald-950/10 text-[#0A3D27]" aria-label="Toggle menu">
             <Menu className="h-5 w-5" />
           </summary>
@@ -133,6 +144,7 @@ export default async function SiteHeader() {
             </Link>
           </div>
         </details>
+        </div>
       </div>
     </header>
   );

@@ -36,7 +36,11 @@ export async function proxy(request: NextRequest) {
 }
 
 function requiresFamPlantsAccessToken(pathname: string): boolean {
-  return pathname === "/profile" || pathname.startsWith("/gardens");
+  return pathname === "/profile"
+    || pathname.startsWith("/gardens")
+    || pathname.startsWith("/checkout")
+    || pathname.startsWith("/orders")
+    || pathname.startsWith("/api/orders");
 }
 
 export const config = {

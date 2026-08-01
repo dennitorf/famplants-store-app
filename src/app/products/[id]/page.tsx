@@ -4,6 +4,7 @@ import StoreShell from "@/app/components/layout/store-shell";
 import { ErrorState } from "@/app/components/common/async-state";
 import { ProductsService } from "@/utils/services/products/products-service";
 import { errorMessage, plainText } from "@/lib/text";
+import AddToCartButton from "@/app/components/cart/add-to-cart-button";
 
 export const dynamic = "force-dynamic";
 
@@ -48,9 +49,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </ul>
               </div>
             ) : null}
-            <button type="button" disabled className="auth-button auth-button-primary mt-7 w-full sm:w-auto">
-              {product.primaryStockLevel > 0 ? "Online ordering coming soon" : "Out of stock"}
-            </button>
+            <AddToCartButton productId={product.id} name={product.name} sku={product.sku} unitPrice={product.effectivePrice} imageUrl={image?.thumbnailUrl || image?.url} disabled={product.primaryStockLevel <= 0} />
           </div>
         </section>
       </StoreShell>

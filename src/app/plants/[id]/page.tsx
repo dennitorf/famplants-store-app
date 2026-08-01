@@ -4,6 +4,7 @@ import StoreShell from "@/app/components/layout/store-shell";
 import { ErrorState } from "@/app/components/common/async-state";
 import { PlantsService } from "@/utils/services/plants/plants-service";
 import { errorMessage, plainText } from "@/lib/text";
+import PlantCareInformation from "@/app/components/plants/plant-care-information";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,7 @@ export default async function PlantDetailPage({ params }: { params: Promise<{ id
             </div>
           </div>
         </section>
+        <PlantCareInformation plantId={plant.id} />
       </StoreShell>
     );
   } catch (error) {

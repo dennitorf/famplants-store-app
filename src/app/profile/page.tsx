@@ -81,6 +81,7 @@ export default async function ProfilePage() {
               <ProfileLink href="/gardens" icon={<Sprout className="h-5 w-5" />} title="My gardens" description="Manage your growing spaces." />
               <ProfileLink href="/plants" icon={<Flower2 className="h-5 w-5" />} title="Explore plants" description="Browse plants and tagged collections." />
               <ProfileLink href="/products" icon={<ShoppingBag className="h-5 w-5" />} title="Shop" description="Explore published products." />
+              <ProfileLink href="/orders" icon={<ShoppingBag className="h-5 w-5" />} title="My orders" description="Review your order history." />
             </div>
           </article>
           <Link href="/auth/logout" className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#b42318] px-5 py-4 font-bold text-white transition-opacity hover:opacity-90">
