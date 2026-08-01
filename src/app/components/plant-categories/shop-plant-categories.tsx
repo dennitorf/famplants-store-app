@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function PlantCategoryShop() {
     const plantCategories = [
@@ -25,7 +26,7 @@ export default function PlantCategoryShop() {
             <h2 className="mb-5 text-center text-3xl font-bold text-foreground">Shop by Category</h2>
             <div className="flex flex-wrap justify-center gap-4">
                 {plantCategories.map((category) => (
-                    <div key={category.name} className="flex flex-col items-center gap-3">
+                    <Link href="/plants" key={category.name} className="flex flex-col items-center gap-3 transition-transform hover:-translate-y-1">
                         <Image
                             src={`/img/${category.image}`}
                             alt={category.name}
@@ -36,7 +37,7 @@ export default function PlantCategoryShop() {
                         <p className="text-center text-lg font-bold" style={{ color: "#15BC65" }}>
                             {category.name}
                         </p>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </section>

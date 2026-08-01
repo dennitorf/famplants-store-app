@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Header() {
     return (
         <section
@@ -15,18 +17,18 @@ export default function Header() {
                 </p>
 
                 <div className="flex flex-wrap gap-3">
-                    <button
-                        type="button"
+                    <Link
+                        href="/products"
                         className="rounded-md bg-[#0A3D27] px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
                     >
                         Shop now
-                    </button>
-                    <button
-                        type="button"
+                    </Link>
+                    <Link
+                        href="/plants"
                         className="rounded-md border border-white/60 bg-transparent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                     >
-                        Learn more
-                    </button>
+                        Explore plants
+                    </Link>
                 </div>
             </div>
         </section>
