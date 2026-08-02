@@ -114,8 +114,24 @@ function redirectToLogin(): void {
 }
 
 export const apiClient = {
-  get: <T = unknown>(url: string, config?: AxiosRequestConfig) =>
-    axiosInstance.get<T>(url, config),
+  get: async <T = unknown>(url: string, config?: AxiosRequestConfig) => {
+    const retryableStatuses = new Set([502, 503, 504]);
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        return await axiosInstance.get<T>(url, config);
+      } catch (error) {
+        const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+        if (attempt === 1 || !status || !retryableStatuses.has(status)) {
+          throw error;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+    }
+
+    throw new Error("Request failed after retry");
+  },
   post: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
     axiosInstance.post<T>(url, data, config),
   put: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) =>

@@ -17,28 +17,46 @@ interface ProductsPageProps {
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { category: requestedCategoryId, tag: selectedTagId } = await searchParams;
-  const selectedCategoryId = selectedTagId ? undefined : requestedCategoryId;
-  const [categoriesResult, tagsResult, productsResult] = await Promise.all([
+  const { category: selectedCategoryKey, tag: selectedTagSlug } = await searchParams;
+  return <ProductCatalog selectedCategoryKey={selectedCategoryKey} selectedTagSlug={selectedTagSlug} />;
+}
+
+export async function ProductCatalog({
+  selectedCategoryKey: requestedCategoryKey,
+  selectedTagSlug,
+}: {
+  selectedCategoryKey?: string;
+  selectedTagSlug?: string;
+}) {
+  const selectedCategoryKey = selectedTagSlug ? undefined : requestedCategoryKey;
+  const [categoriesResult, tagsResult, selectedTagResult] = await Promise.all([
     loadResult(ProductCategoriesService.getAll(1, 60)),
     loadResult(ProductTagsCatalogService.getAll(1, 100)),
-    selectedTagId
-      ? loadResult(ProductTagsService.getProductsByTag(selectedTagId))
-      : loadResult(ProductsService.getAll(1, 60)),
+    selectedTagSlug
+      ? loadResult(ProductTagsCatalogService.getBySlug(selectedTagSlug))
+      : Promise.resolve(null),
   ]);
 
   const tags = tagsResult.data?.data ?? [];
   const categories = categoriesResult.data?.data ?? [];
-  const selectedTag = tags.find((tag) => tag.id === selectedTagId);
-  const selectedCategory = categories.find((category) => category.id === selectedCategoryId);
+  const selectedTag = selectedTagResult?.data ?? undefined;
+  const selectedCategory = categories.find(
+    (category) => category.slug === selectedCategoryKey || category.id === selectedCategoryKey,
+  );
+  const selectedCategoryId = selectedCategory?.id;
+  const productsResult = selectedTagSlug
+    ? selectedTag
+      ? await loadResult(ProductTagsService.getProductsByTag(selectedTag.id))
+      : { data: null, error: selectedTagResult?.error || "Product tag not found" }
+    : await loadResult(ProductsService.getAll(1, 60));
   const catalogProducts = productsResult.data === null
     ? []
     : Array.isArray(productsResult.data)
       ? productsResult.data
       : productsResult.data.data;
-  const detailedProducts = selectedTagId
+  const detailedProducts = selectedTagSlug
     ? await Promise.all(
-        catalogProducts.map((product) => ProductsService.getById(product.id).catch(() => product)),
+        catalogProducts.map((product) => ProductsService.getBySlug(product.slug).catch(() => product)),
       )
     : catalogProducts;
   const products = selectedCategoryId
@@ -65,9 +83,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <ShopDiscoverySidebar
           categories={categories}
           tags={tags}
-          selectedSection={selectedTagId ? "tag" : selectedCategoryId ? "category" : "all"}
-          selectedCategoryId={selectedCategoryId}
-          selectedTagId={selectedTagId}
+          selectedSection={selectedTagSlug ? "tag" : selectedCategoryId ? "category" : "all"}
+          selectedCategorySlug={selectedCategory?.slug}
+          selectedTagSlug={selectedTagSlug}
         />
         <section>
           <div className="mb-5 flex items-end justify-between gap-4">

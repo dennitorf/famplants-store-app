@@ -12,7 +12,7 @@ export default function FamilyCard({ family }: { family: Family }) {
 
   return (
     <article className="catalog-card group">
-      <Link href={`/families/${family.id}`}>
+      <Link href={`/families/${family.slug || family.id}`}>
         <div className="catalog-image">
           <CatalogImage
             src={image}

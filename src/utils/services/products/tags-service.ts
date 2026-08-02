@@ -17,4 +17,11 @@ export class ProductTagsCatalogService {
     const response = await apiClient.get<ProductTagDefinition>(`${this.baseUrl}/${id}`);
     return response.data;
   }
+
+  public static async getBySlug(slug: string): Promise<ProductTagDefinition> {
+    const response = await apiClient.get<ProductTagDefinition>(
+      `${this.baseUrl}/by-slug/${encodeURIComponent(slug)}`,
+    );
+    return response.data;
+  }
 }

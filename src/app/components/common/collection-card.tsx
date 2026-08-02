@@ -11,7 +11,7 @@ export default function CollectionCard({ collection }: { collection: PlantCollec
 
   return (
     <article className="catalog-card group">
-      <Link href={`/collections/${collection.id}`} className="block">
+      <Link href={`/collections/${collection.slug || collection.id}`} className="block">
         <div className="catalog-image">
           <CatalogImage
             src={image}

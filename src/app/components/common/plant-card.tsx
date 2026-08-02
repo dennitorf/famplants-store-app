@@ -18,7 +18,7 @@ export default function PlantCard({ plant, returnTo = "/plants" }: PlantCardProp
   return (
     <article className="catalog-card group">
       <Link
-        href={`/plants/${plant.id}?returnTo=${encodeURIComponent(returnTo)}`}
+        href={`/plants/${plant.slug}?returnTo=${encodeURIComponent(returnTo)}`}
         className="block"
       >
         <div className="catalog-image">

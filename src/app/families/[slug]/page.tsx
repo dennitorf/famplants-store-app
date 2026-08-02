@@ -7,19 +7,24 @@ import { FamiliesService } from "@/utils/services/plants/families-service";
 import { FamilyPlantsService } from "@/utils/services/plants/family-plants-service";
 import { plainText } from "@/lib/text";
 import { loadResult } from "@/lib/result";
+import { isGuid } from "@/utils/helpers/entity-key";
 
 export const dynamic = "force-dynamic";
 
-export default async function FamilyPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const result = await loadResult(Promise.all([
-      FamiliesService.getById(id),
-      FamilyPlantsService.getAll(id, 1, 60),
-    ]));
+export default async function FamilyPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const familyResult = await loadResult(
+    isGuid(slug) ? FamiliesService.getById(slug) : FamiliesService.getBySlug(slug),
+  );
+  if (familyResult.data === null) {
+    return <StoreShell><div className="py-14"><ErrorState message={familyResult.error} /></div></StoreShell>;
+  }
+  const family = familyResult.data;
+  const result = await loadResult(FamilyPlantsService.getAll(family.id, 1, 60));
   if (result.data === null) {
     return <StoreShell><div className="py-14"><ErrorState message={result.error} /></div></StoreShell>;
   }
-  const [family, plants] = result.data;
+  const plants = result.data;
   const familyImage = family.mainImage?.url || family.mainImage?.thumbnailUrl || family.url || family.thumbnailUrl;
   return (
     <StoreShell>
@@ -39,7 +44,7 @@ export default async function FamilyPage({ params }: { params: Promise<{ id: str
         </section>
         <section className="pb-12">
           <h2 className="mb-5 text-2xl font-bold text-[#153f2f]">Plants in this family</h2>
-          {plants.data.length ? <div className="catalog-grid">{plants.data.map((plant) => <PlantCard key={plant.id} plant={plant} returnTo={`/families/${id}`} />)}</div> : <EmptyState title="No public plants in this family" description="Check back as the catalog grows." />}
+          {plants.data.length ? <div className="catalog-grid">{plants.data.map((plant) => <PlantCard key={plant.id} plant={plant} returnTo={`/families/${family.slug}`} />)}</div> : <EmptyState title="No public plants in this family" description="Check back as the catalog grows." />}
         </section>
     </StoreShell>
   );

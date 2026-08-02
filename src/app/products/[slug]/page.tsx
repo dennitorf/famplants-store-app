@@ -3,20 +3,32 @@ import { ArrowLeft, Check, Leaf, PackageCheck, Sparkles } from "lucide-react";
 import StoreShell from "@/app/components/layout/store-shell";
 import { ErrorState } from "@/app/components/common/async-state";
 import { ProductsService } from "@/utils/services/products/products-service";
+import { PlantsService } from "@/utils/services/plants/plants-service";
 import { ProductImagesService } from "@/utils/services/products/product-images-service";
 import { errorMessage, plainText } from "@/lib/text";
 import AddToCartButton from "@/app/components/cart/add-to-cart-button";
 import RichHtml from "@/app/components/common/rich-html";
+import { isGuid } from "@/utils/helpers/entity-key";
+import { ProductTagsService } from "@/utils/services/products/product-tags-service";
+import TagIcon from "@/app/components/plants/tag-icon";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   try {
-    const [product, images] = await Promise.all([
-      ProductsService.getById(id),
-      ProductImagesService.getAll(id).catch(() => []),
+    const product = isGuid(slug)
+      ? await ProductsService.getById(slug)
+      : await ProductsService.getBySlug(slug);
+    const [images, tags, includedPlantEntries] = await Promise.all([
+      ProductImagesService.getAll(product.id).catch(() => []),
+      ProductTagsService.getTagsByProduct(product.id).catch(() => []),
+      Promise.all((product.plants || []).map(async (item) => [
+        item.plantId,
+        (await PlantsService.getById(item.plantId).catch(() => null))?.slug,
+      ] as const)),
     ]);
+    const includedPlantSlugs = new Map(includedPlantEntries);
     const image = images.find((item) => item.isPrimary) ?? images[0];
     const hasDiscount = product.discountAmount > 0 && product.effectivePrice < product.basePrice;
 
@@ -33,6 +45,20 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <div className="py-3">
             <p className="eyebrow">{product.categoryName || "FamPlants shop"}</p>
             <h1 className="mt-2 font-[family-name:var(--font-joti-one)] text-4xl leading-tight text-[#0A3D27] md:text-6xl">{product.name}</h1>
+            {tags.length ? (
+              <div className="mt-4 flex flex-wrap gap-2" aria-label="Product tags">
+                {tags.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    href={`/products/tags/${encodeURIComponent(tag.slug)}`}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#eef8e9] px-3 py-1.5 text-xs font-bold text-[#37634f] transition-colors hover:bg-[#dff2d7]"
+                  >
+                    <TagIcon icon={tag.icon} className="h-3.5 w-3.5" />
+                    {tag.name || "Product tag"}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
             <p className="mt-4 text-lg leading-8 text-[#557064]">{plainText(product.shortDescription) || "A thoughtfully selected FamPlants product."}</p>
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-3xl font-extrabold text-[#0A3D27]">${product.effectivePrice.toFixed(2)}</span>
@@ -47,11 +73,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <div className="detail-panel mt-7">
                 <h2 className="flex items-center gap-2 text-xl font-bold text-[#153f2f]"><Leaf className="h-5 w-5" /> Plants included</h2>
                 <ul className="mt-4 grid gap-2 text-[#557064]">
-                  {product.plants.map((plant) => <li key={plant.id} className="flex justify-between gap-4"><Link href={`/plants/${plant.plantId}`} className="font-bold text-[#12613f] hover:underline">{plant.name}</Link><span>× {plant.quantity}</span></li>)}
+                  {product.plants.map((plant) => <li key={plant.id} className="flex justify-between gap-4">{includedPlantSlugs.get(plant.plantId) ? <Link href={`/plants/${includedPlantSlugs.get(plant.plantId)}`} className="font-bold text-[#12613f] hover:underline">{plant.name}</Link> : <span className="font-bold text-[#12613f]">{plant.name}</span>}<span>× {plant.quantity}</span></li>)}
                 </ul>
               </div>
             ) : null}
-            <AddToCartButton productId={product.id} name={product.name} sku={product.sku} unitPrice={product.effectivePrice} imageUrl={image?.thumbnailUrl || image?.url} disabled={product.primaryStockLevel <= 0} />
+            <AddToCartButton productId={product.id} productSlug={product.slug} name={product.name} sku={product.sku} unitPrice={product.effectivePrice} imageUrl={image?.thumbnailUrl || image?.url} disabled={product.primaryStockLevel <= 0} />
           </div>
         </section>
         {plainText(product.longDescription) ? <section className="mb-16 rounded-[2rem] border border-emerald-950/10 bg-white p-7 md:p-10"><p className="eyebrow">Product details</p><h2 className="mt-2 text-3xl font-bold text-[#0A3D27]">Description</h2><RichHtml content={product.longDescription ?? ""} className="mt-5" /></section> : null}

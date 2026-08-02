@@ -4,7 +4,7 @@ import type { Family } from "@/models/plants/family";
 export interface Plant {
   id: string;
   name?: string;
-  slug?: string;
+  slug: string;
   description?: string;
   url?: string;
   thumbnailUrl?: string;

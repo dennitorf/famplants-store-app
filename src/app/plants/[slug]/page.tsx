@@ -14,11 +14,12 @@ import PlantDetailTabs from "@/app/components/plants/plant-detail-tabs";
 import PlantImageGallery from "@/app/components/plants/plant-image-gallery";
 import TagIcon from "@/app/components/plants/tag-icon";
 import ShareButton from "@/app/components/share/share-button";
+import { isGuid } from "@/utils/helpers/entity-key";
 
 export const dynamic = "force-dynamic";
 
 interface PlantDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
   searchParams: Promise<{ returnTo?: string }>;
 }
 
@@ -36,16 +37,18 @@ function getReturnLabel(returnTo: string): string {
 }
 
 export default async function PlantDetailPage({ params, searchParams }: PlantDetailPageProps) {
-  const { id } = await params;
+  const { slug } = await params;
   const { returnTo } = await searchParams;
   const returnDestination = getReturnDestination(returnTo);
 
   try {
-    const [plant, images, tags, issuesResult] = await Promise.all([
-      PlantsService.getById(id),
-      PlantImagesService.getAll(id).catch(() => []),
-      PlantTagsService.getTagsByPlant(id).catch(() => []),
-      loadResult(PlantIssuesService.getAll(id)),
+    const plant = isGuid(slug)
+      ? await PlantsService.getById(slug)
+      : await PlantsService.getBySlug(slug);
+    const [images, tags, issuesResult] = await Promise.all([
+      PlantImagesService.getAll(plant.id).catch(() => []),
+      PlantTagsService.getTagsByPlant(plant.id).catch(() => []),
+      loadResult(PlantIssuesService.getAll(plant.id)),
     ]);
     const orderedTags = [...tags].sort((left, right) => left.order - right.order);
     const issues = issuesResult.data?.data ?? [];
@@ -66,10 +69,10 @@ export default async function PlantDetailPage({ params, searchParams }: PlantDet
           </Link>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Link href={`/gardens?plantId=${plant.id}`} className="auth-button auth-button-primary">Add to my garden</Link>
-            {plant.familyId ? <Link href={`/families/${plant.familyId}`} className="auth-button auth-button-secondary">Explore its family</Link> : null}
+            {plant.family?.slug ? <Link href={`/families/${plant.family.slug}`} className="auth-button auth-button-secondary">Explore its family</Link> : null}
             <ShareButton
               label={`Share ${plant.name || "plant"}`}
-              path={`/plants/${plant.id}`}
+              path={`/plants/${plant.slug}`}
               className="size-10 rounded-full border-emerald-950/15 text-[#0A3D27]"
             />
           </div>
@@ -91,7 +94,7 @@ export default async function PlantDetailPage({ params, searchParams }: PlantDet
                 {orderedTags.map((tag) => (
                   <Link
                     key={tag.id}
-                    href={`/plants?tag=${encodeURIComponent(tag.id)}`}
+                    href={`/plants/tags/${encodeURIComponent(tag.slug)}`}
                     className="inline-flex items-center gap-1.5 rounded-full bg-[#eef8e9] px-3 py-1.5 text-xs font-bold text-[#37634f] transition-colors hover:bg-[#dff2d7]"
                   >
                     <TagIcon icon={tag.icon} className="h-3.5 w-3.5" />

@@ -8,7 +8,7 @@ type SelectedSection = "all" | "families" | "tag";
 interface PlantDiscoverySidebarProps {
   tags: Tag[];
   selectedSection: SelectedSection;
-  selectedTagId?: string;
+  selectedTagSlug?: string;
 }
 
 function navigationClass(selected: boolean): string {
@@ -22,7 +22,7 @@ function navigationClass(selected: boolean): string {
 export default function PlantDiscoverySidebar({
   tags,
   selectedSection,
-  selectedTagId,
+  selectedTagSlug,
 }: PlantDiscoverySidebarProps) {
   const orderedTags = [...tags].sort((left, right) => left.order - right.order);
 
@@ -37,8 +37,8 @@ export default function PlantDiscoverySidebar({
           {orderedTags.map((tag) => (
             <Link
               key={tag.id}
-              href={`/plants?tag=${encodeURIComponent(tag.id)}`}
-              className={navigationClass(selectedSection === "tag" && selectedTagId === tag.id)}
+              href={`/plants/tags/${encodeURIComponent(tag.slug)}`}
+              className={navigationClass(selectedSection === "tag" && selectedTagSlug === tag.slug)}
             >
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#eef8e9] text-[#2f6b4e]">
                 <TagIcon icon={tag.icon} className="h-4 w-4" />

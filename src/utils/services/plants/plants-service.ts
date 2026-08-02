@@ -17,4 +17,11 @@ export class PlantsService {
     const response = await apiClient.get<Plant>(`${this.baseUrl}/${id}`);
     return response.data;
   }
+
+  public static async getBySlug(slug: string): Promise<Plant> {
+    const response = await apiClient.get<Plant>(
+      `${this.baseUrl}/by-slug/${encodeURIComponent(slug)}`,
+    );
+    return response.data;
+  }
 }

@@ -9,7 +9,7 @@ export default function ProductCard({ product, image }: { product: Product; imag
 
   return (
     <article className="catalog-card group">
-      <Link href={`/products/${product.id}`}>
+      <Link href={`/products/${product.slug}`}>
         <div className="catalog-image relative">
           <CatalogImage
             src={image?.thumbnailUrl || image?.url}

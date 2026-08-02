@@ -10,8 +10,8 @@ interface ShopDiscoverySidebarProps {
   categories: ProductCategory[];
   tags: ProductTagDefinition[];
   selectedSection: SelectedSection;
-  selectedCategoryId?: string;
-  selectedTagId?: string;
+  selectedCategorySlug?: string;
+  selectedTagSlug?: string;
 }
 
 function navigationClass(selected: boolean): string {
@@ -26,8 +26,8 @@ export default function ShopDiscoverySidebar({
   categories,
   tags,
   selectedSection,
-  selectedCategoryId,
-  selectedTagId,
+  selectedCategorySlug,
+  selectedTagSlug,
 }: ShopDiscoverySidebarProps) {
   const orderedCategories = [...categories].sort((left, right) => left.name.localeCompare(right.name));
   const orderedTags = [...tags].sort((left, right) => left.order - right.order);
@@ -56,9 +56,9 @@ export default function ShopDiscoverySidebar({
               {orderedCategories.map((category) => (
                 <Link
                   key={category.id}
-                  href={`/products?category=${encodeURIComponent(category.id)}`}
+                  href={`/products/categories/${encodeURIComponent(category.slug)}`}
                   className={navigationClass(
-                    selectedSection === "category" && selectedCategoryId === category.id,
+                    selectedSection === "category" && selectedCategorySlug === category.slug,
                   )}
                 >
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#eef8e9] text-[#2f6b4e]">
@@ -81,8 +81,8 @@ export default function ShopDiscoverySidebar({
               {orderedTags.map((tag) => (
                 <Link
                   key={tag.id}
-                  href={`/products?tag=${encodeURIComponent(tag.id)}`}
-                  className={navigationClass(selectedSection === "tag" && selectedTagId === tag.id)}
+                  href={`/products/tags/${encodeURIComponent(tag.slug)}`}
+                  className={navigationClass(selectedSection === "tag" && selectedTagSlug === tag.slug)}
                 >
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#eef8e9] text-[#2f6b4e]">
                     <TagIcon icon={tag.icon} className="h-4 w-4" />

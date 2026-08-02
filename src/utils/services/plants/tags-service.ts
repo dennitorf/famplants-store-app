@@ -17,4 +17,11 @@ export class TagsService {
     const response = await apiClient.get<Tag>(`${this.baseUrl}/${id}`);
     return response.data;
   }
+
+  public static async getBySlug(slug: string): Promise<Tag> {
+    const response = await apiClient.get<Tag>(
+      `${this.baseUrl}/by-slug/${encodeURIComponent(slug)}`,
+    );
+    return response.data;
+  }
 }

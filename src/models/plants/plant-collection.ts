@@ -6,7 +6,7 @@ export interface PlantCollectionMember {
   plantId: string;
   collectionName?: string;
   plantName?: string;
-  plantSlug?: string;
+  plantSlug: string;
   plantDescription?: string;
   plantFamilyId?: string;
   plantFamilyName?: string;

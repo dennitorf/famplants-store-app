@@ -15,16 +15,23 @@ interface PlantsPageProps {
 }
 
 export default async function PlantsPage({ searchParams }: PlantsPageProps) {
-  const { tag: selectedTagId } = await searchParams;
-  const [tagsResult, plantsResult] = await Promise.all([
+  const { tag: selectedTagSlug } = await searchParams;
+  return <PlantCatalog selectedTagSlug={selectedTagSlug} />;
+}
+
+export async function PlantCatalog({ selectedTagSlug }: { selectedTagSlug?: string }) {
+  const [tagsResult, selectedTagResult] = await Promise.all([
     loadResult(TagsService.getAll(1, 100)),
-    selectedTagId
-      ? loadResult(PlantTagsService.getPlantsByTag(selectedTagId))
-      : loadResult(PlantsService.getAll(1, 60)),
+    selectedTagSlug ? loadResult(TagsService.getBySlug(selectedTagSlug)) : Promise.resolve(null),
   ]);
 
   const tags = tagsResult.data?.data ?? [];
-  const selectedTag = tags.find((tag) => tag.id === selectedTagId);
+  const selectedTag = selectedTagResult?.data ?? undefined;
+  const plantsResult = selectedTagSlug
+    ? selectedTag
+      ? await loadResult(PlantTagsService.getPlantsByTag(selectedTag.id))
+      : { data: null, error: selectedTagResult?.error || "Plant tag not found" }
+    : await loadResult(PlantsService.getAll(1, 60));
   const plants = plantsResult.data === null
     ? []
     : Array.isArray(plantsResult.data)
@@ -35,8 +42,8 @@ export default async function PlantsPage({ searchParams }: PlantsPageProps) {
     : Array.isArray(plantsResult.data)
       ? plantsResult.data.length
       : plantsResult.data.total;
-  const returnTo = selectedTagId
-    ? `/plants?tag=${encodeURIComponent(selectedTagId)}`
+  const returnTo = selectedTagSlug
+    ? `/plants/tags/${encodeURIComponent(selectedTagSlug)}`
     : "/plants";
 
   return (
@@ -50,8 +57,8 @@ export default async function PlantsPage({ searchParams }: PlantsPageProps) {
       <div className="grid gap-8 pb-12 lg:grid-cols-[17rem_minmax(0,1fr)]">
         <PlantDiscoverySidebar
           tags={tags}
-          selectedSection={selectedTagId ? "tag" : "all"}
-          selectedTagId={selectedTagId}
+          selectedSection={selectedTagSlug ? "tag" : "all"}
+          selectedTagSlug={selectedTagSlug}
         />
         <section>
           <div className="mb-5 flex items-end justify-between gap-4">

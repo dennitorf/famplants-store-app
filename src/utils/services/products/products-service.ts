@@ -17,4 +17,11 @@ export class ProductsService {
     const response = await apiClient.get<Product>(`${this.baseUrl}/${id}`);
     return response.data;
   }
+
+  public static async getBySlug(slug: string): Promise<Product> {
+    const response = await apiClient.get<Product>(
+      `${this.baseUrl}/by-slug/${encodeURIComponent(slug)}`,
+    );
+    return response.data;
+  }
 }

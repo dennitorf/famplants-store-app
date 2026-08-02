@@ -17,4 +17,11 @@ export class FamiliesService {
     const response = await apiClient.get<Family>(`${this.baseUrl}/${id}`);
     return response.data;
   }
+
+  public static async getBySlug(slug: string): Promise<Family> {
+    const response = await apiClient.get<Family>(
+      `${this.baseUrl}/by-slug/${encodeURIComponent(slug)}`,
+    );
+    return response.data;
+  }
 }

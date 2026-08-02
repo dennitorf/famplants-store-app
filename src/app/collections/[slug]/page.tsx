@@ -5,20 +5,28 @@ import { EmptyState, ErrorState } from "@/app/components/common/async-state";
 import StoreShell from "@/app/components/layout/store-shell";
 import { loadResult } from "@/lib/result";
 import { plainText } from "@/lib/text";
+import { isGuid } from "@/utils/helpers/entity-key";
 import { CollectionsService } from "@/utils/services/plants/collections-service";
 import { PlantCollectionsService } from "@/utils/services/plants/plant-collections-service";
 import ShareButton from "@/app/components/share/share-button";
 
 export const dynamic = "force-dynamic";
 
-export default async function CollectionPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const [collectionResult, plantsResult] = await Promise.all([
-    loadResult(CollectionsService.getById(id)),
-    loadResult(PlantCollectionsService.getPlants(id)),
-  ]);
+export default async function CollectionPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const collectionResult = await loadResult(
+    isGuid(slug) ? CollectionsService.getById(slug) : CollectionsService.getBySlug(slug),
+  );
   const collection = collectionResult.data;
+  const plantsResult = collection
+    ? await loadResult(PlantCollectionsService.getPlants(collection.id))
+    : { data: null, error: collectionResult.error };
   const collectionPlants = plantsResult.data;
+  const collectionPath = `/collections/${collection?.slug || slug}`;
 
   return (
     <StoreShell>
@@ -29,7 +37,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
         {collection ? (
           <ShareButton
             label={`Share ${collection.name || "collection"}`}
-            path={`/collections/${collection.id}`}
+            path={collectionPath}
             className="size-10 rounded-full border-emerald-950/15 text-[#0A3D27]"
           />
         ) : null}
@@ -66,7 +74,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
         ) : collectionPlants.data.length ? (
           <div className="catalog-grid">
             {collectionPlants.data.map((plant) => (
-              <PlantCard key={plant.id} plant={plant} returnTo={`/collections/${id}`} />
+              <PlantCard key={plant.id} plant={plant} returnTo={collectionPath} />
             ))}
           </div>
         ) : (
