@@ -23,7 +23,7 @@ export default async function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 -mx-3 border-b border-emerald-950/10 bg-[#fbfdf8]/95 px-3 backdrop-blur sm:-mx-4 sm:px-4 md:-mx-6 md:px-6">
       <div className="mx-auto flex h-18 max-w-[1392px] items-center justify-between gap-4">
-        <Link href="/home" className="flex items-center gap-2 text-[#0A3D27]">
+        <Link href="/" className="flex items-center gap-2 text-[#0A3D27]">
           <span className="grid h-10 w-10 place-items-center rounded-full bg-[#dff5d8]">
             <Sprout className="h-6 w-6" />
           </span>

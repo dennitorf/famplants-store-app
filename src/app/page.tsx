@@ -1,10 +1,7 @@
-import WelcomeGate from "./components/home/welcome-gate";
 import HomePage from "./home/page";
 
+export const dynamic = "force-dynamic";
+
 export default function LandingPage() {
-  return (
-    <WelcomeGate>
-      <HomePage />
-    </WelcomeGate>
-  );
+  return <HomePage />;
 }
