@@ -5,8 +5,10 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, Flower2, MapPin, Plus, X } from "lucide-react";
 import { EmptyState, ErrorState, LoadingState } from "@/app/components/common/async-state";
-import type { Garden, LookupOption } from "@/models/api";
-import { GardenLookupsService, GardensService } from "@/utils/services/gardens/gardens-service";
+import type { LookupOption } from "@/models/common/lookup-option";
+import type { Garden } from "@/models/gardens/garden";
+import { GardenLookupsService } from "@/utils/services/gardens/garden-lookups-service";
+import { GardensService } from "@/utils/services/gardens/gardens-service";
 import { errorMessage } from "@/lib/text";
 
 export default function GardensClient() {

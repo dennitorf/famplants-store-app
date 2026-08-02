@@ -1,7 +1,7 @@
 import Link from "next/link";
 import FamilyCard from "@/app/components/common/family-card";
 import { EmptyState, ErrorState } from "@/app/components/common/async-state";
-import type { Family } from "@/models/api";
+import type { Family } from "@/models/plants/family";
 
 interface PlantCategoryShopProps {
   families: Family[];
@@ -14,7 +14,7 @@ export default function PlantCategoryShop({ families, error }: PlantCategoryShop
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <p className="eyebrow">Plant families</p>
-          <h2 className="mt-1 text-3xl font-bold text-foreground">Shop by family</h2>
+          <h2 className="mt-1 text-3xl font-bold text-foreground">Explore families</h2>
         </div>
         <Link href="/families" className="text-sm font-bold text-[#12613f] hover:underline">
           View all families

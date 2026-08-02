@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Hash } from "lucide-react";
-import type { Tag } from "@/models/api";
+import type { Tag } from "@/models/plants/tag";
 
 interface CatalogTagFiltersProps {
   basePath: string;

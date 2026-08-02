@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { CreateOrderRequest } from "@/models/api";
+import type { CreateOrderRequest } from "@/models/orders/order";
 import { ensureCurrentUser } from "@/utils/services/auth/current-user-service";
 import { OrdersApiError, OrdersService } from "@/utils/services/orders/orders-service";
 

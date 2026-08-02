@@ -1,22 +1,24 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import type { Family } from "@/models/api";
+import type { Family } from "@/models/plants/family";
 import { plainText } from "@/lib/text";
+import CatalogImage from "@/app/components/common/catalog-image";
 
 export default function FamilyCard({ family }: { family: Family }) {
-  const image = family.thumbnailUrl || family.url;
+  const image = family.mainImage?.thumbnailUrl
+    || family.mainImage?.url
+    || family.thumbnailUrl
+    || family.url;
 
   return (
     <article className="catalog-card group">
       <Link href={`/families/${family.id}`}>
         <div className="catalog-image">
-          {image ? (
-            // API media can come from multiple storage providers.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt={family.altText || family.name || "Plant family"} />
-          ) : (
-            <div className="image-placeholder">Family photo coming soon</div>
-          )}
+          <CatalogImage
+            src={image}
+            alt={family.mainImage?.altText || family.altText || family.name || "Plant family"}
+            placeholderLabel="Family photo coming soon"
+          />
         </div>
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">

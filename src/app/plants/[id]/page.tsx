@@ -3,21 +3,52 @@ import { ArrowLeft, Droplets, Leaf, MapPin, Sprout, Sun, ThermometerSun } from "
 import StoreShell from "@/app/components/layout/store-shell";
 import { ErrorState } from "@/app/components/common/async-state";
 import { PlantsService } from "@/utils/services/plants/plants-service";
+import { PlantImagesService } from "@/utils/services/plants/plant-images-service";
+import { PlantIssuesService } from "@/utils/services/plants/plant-issues-service";
+import { PlantTagsService } from "@/utils/services/plants/plant-tags-service";
 import { errorMessage, plainText } from "@/lib/text";
+import { loadResult } from "@/lib/result";
 import PlantCareInformation from "@/app/components/plants/plant-care-information";
+import PlantCommonIssues from "@/app/components/plants/plant-common-issues";
+import PlantDetailTabs from "@/app/components/plants/plant-detail-tabs";
+import PlantImageGallery from "@/app/components/plants/plant-image-gallery";
+import TagIcon from "@/app/components/plants/tag-icon";
+import ShareButton from "@/app/components/share/share-button";
 
 export const dynamic = "force-dynamic";
 
-export default async function PlantDetailPage({ params }: { params: Promise<{ id: string }> }) {
+interface PlantDetailPageProps {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnTo?: string }>;
+}
+
+function getReturnDestination(returnTo?: string): string {
+  return returnTo?.startsWith("/") && !returnTo.startsWith("//")
+    ? returnTo
+    : "/plants";
+}
+
+function getReturnLabel(returnTo: string): string {
+  if (returnTo.startsWith("/collections/")) return "Back to collection";
+  if (returnTo.startsWith("/families/")) return "Back to family";
+  if (returnTo === "/home") return "Back to home";
+  return "Back to plants";
+}
+
+export default async function PlantDetailPage({ params, searchParams }: PlantDetailPageProps) {
   const { id } = await params;
+  const { returnTo } = await searchParams;
+  const returnDestination = getReturnDestination(returnTo);
 
   try {
-    const [plant, images] = await Promise.all([
+    const [plant, images, tags, issuesResult] = await Promise.all([
       PlantsService.getById(id),
-      PlantsService.getImages(id).catch(() => []),
+      PlantImagesService.getAll(id).catch(() => []),
+      PlantTagsService.getTagsByPlant(id).catch(() => []),
+      loadResult(PlantIssuesService.getAll(id)),
     ]);
-    const primaryImage = images.find((image) => image.isPrimary) ?? images[0];
-    const image = primaryImage?.url || plant.url || plant.thumbnailUrl;
+    const orderedTags = [...tags].sort((left, right) => left.order - right.order);
+    const issues = issuesResult.data?.data ?? [];
     const traits = [
       { label: "Light", value: plant.lightRequirement, icon: Sun },
       { label: "Water", value: plant.wateringFrequency, icon: Droplets },
@@ -29,25 +60,46 @@ export default async function PlantDetailPage({ params }: { params: Promise<{ id
 
     return (
       <StoreShell>
-        <div className="py-6">
-          <Link href="/plants" className="inline-flex items-center gap-2 text-sm font-bold text-[#416a58] hover:text-[#0A3D27]">
-            <ArrowLeft className="h-4 w-4" /> Back to plants
+        <div className="flex flex-wrap items-center justify-between gap-3 py-6">
+          <Link href={returnDestination} className="inline-flex items-center gap-2 text-sm font-bold text-[#416a58] hover:text-[#0A3D27]">
+            <ArrowLeft className="h-4 w-4" /> {getReturnLabel(returnDestination)}
           </Link>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Link href={`/gardens?plantId=${plant.id}`} className="auth-button auth-button-primary">Add to my garden</Link>
+            {plant.familyId ? <Link href={`/families/${plant.familyId}`} className="auth-button auth-button-secondary">Explore its family</Link> : null}
+            <ShareButton
+              label={`Share ${plant.name || "plant"}`}
+              path={`/plants/${plant.id}`}
+              className="size-10 rounded-full border-emerald-950/15 text-[#0A3D27]"
+            />
+          </div>
         </div>
         <section className="grid gap-8 pb-12 lg:grid-cols-[1.05fr_.95fr]">
-          <div className="overflow-hidden rounded-[2rem] bg-[#eaf4e5] lg:sticky lg:top-24 lg:h-fit">
-            {image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={image} alt={primaryImage?.altText || plant.altText || plant.name || "Plant"} className="aspect-square w-full object-cover" />
-            ) : (
-              <div className="image-placeholder aspect-square">Plant photo coming soon</div>
-            )}
-          </div>
+          <PlantImageGallery
+            images={images}
+            plantName={plant.name || "Plant"}
+            fallbackUrl={plant.mainImage?.url || plant.mainImage?.thumbnailUrl || plant.url || plant.thumbnailUrl}
+            fallbackAlt={plant.mainImage?.altText || plant.altText}
+          />
           <div className="py-3">
             <p className="eyebrow">{plant.family?.name || "Plant profile"}</p>
             <h1 className="mt-2 font-[family-name:var(--font-joti-one)] text-4xl leading-tight text-[#0A3D27] md:text-6xl">
               {plant.name || "Unnamed plant"}
             </h1>
+            {orderedTags.length ? (
+              <div className="mt-4 flex flex-wrap gap-2" aria-label="Plant tags">
+                {orderedTags.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    href={`/plants?tag=${encodeURIComponent(tag.id)}`}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#eef8e9] px-3 py-1.5 text-xs font-bold text-[#37634f] transition-colors hover:bg-[#dff2d7]"
+                  >
+                    <TagIcon icon={tag.icon} className="h-3.5 w-3.5" />
+                    {tag.name || "Plant tag"}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
             <p className="mt-5 text-lg leading-8 text-[#557064]">
               {plainText(plant.description) || "Care details for this plant are being prepared."}
             </p>
@@ -66,13 +118,13 @@ export default async function PlantDetailPage({ params }: { params: Promise<{ id
                 ))}
               </div>
             ) : null}
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={`/gardens?plantId=${plant.id}`} className="auth-button auth-button-primary">Add to my garden</Link>
-              {plant.familyId ? <Link href={`/families/${plant.familyId}`} className="auth-button auth-button-secondary">Explore its family</Link> : null}
-            </div>
           </div>
         </section>
-        <PlantCareInformation plantId={plant.id} />
+        <PlantDetailTabs
+          issueCount={issues.length}
+          careInformation={<PlantCareInformation plantId={plant.id} />}
+          commonIssues={<PlantCommonIssues issues={issues} error={issuesResult.error ?? undefined} />}
+        />
       </StoreShell>
     );
   } catch (error) {

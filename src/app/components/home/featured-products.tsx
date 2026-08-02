@@ -8,7 +8,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import type { Product, ProductImage } from "@/models/api";
+import type { Product } from "@/models/products/product";
+import type { ProductImage } from "@/models/products/product-image";
 
 interface FeaturedProductsProps {
   products: Product[];

@@ -5,8 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CalendarDays, Edit3, Flower2, HeartPulse, MapPin, Plus, Trash2, X } from "lucide-react";
 import { EmptyState, ErrorState, LoadingState } from "@/app/components/common/async-state";
-import type { Garden, GardenPlant, LookupOption, Plant } from "@/models/api";
-import { GardenLookupsService, GardensService } from "@/utils/services/gardens/gardens-service";
+import type { LookupOption } from "@/models/common/lookup-option";
+import type { Garden } from "@/models/gardens/garden";
+import type { GardenPlant } from "@/models/gardens/garden-plant";
+import type { Plant } from "@/models/plants/plant";
+import { GardenLookupsService } from "@/utils/services/gardens/garden-lookups-service";
+import { GardenPlantsService } from "@/utils/services/gardens/garden-plants-service";
+import { GardensService } from "@/utils/services/gardens/gardens-service";
 import { PlantsService } from "@/utils/services/plants/plants-service";
 import { errorMessage } from "@/lib/text";
 
@@ -34,7 +39,7 @@ export default function GardenDetailClient({ gardenId }: { gardenId: string }) {
     try {
       const [gardenData, gardenPlantData, plantData, locationData, visibilityData, statusData, healthData] = await Promise.all([
         GardensService.getById(gardenId),
-        GardensService.getPlants(gardenId),
+        GardenPlantsService.getAll(gardenId),
         PlantsService.getAll(1, 100),
         GardenLookupsService.getLocations(),
         GardenLookupsService.getVisibilities(),
@@ -96,8 +101,8 @@ export default function GardenDetailClient({ gardenId }: { gardenId: string }) {
     };
     setIsSaving(true);
     try {
-      if (editingPlant) await GardensService.updatePlant(gardenId, editingPlant.plantId, payload);
-      else await GardensService.addPlant(gardenId, payload);
+      if (editingPlant) await GardenPlantsService.update(gardenId, editingPlant.plantId, payload);
+      else await GardenPlantsService.create(gardenId, payload);
       setEditingPlant(undefined);
       setShowPlantForm(false);
       router.replace(`/gardens/${gardenId}`);
@@ -109,7 +114,7 @@ export default function GardenDetailClient({ gardenId }: { gardenId: string }) {
   async function removePlant(plant: GardenPlant) {
     if (!window.confirm(`Remove ${plant.nickName || plant.plantName || "this plant"} from the garden?`)) return;
     try {
-      await GardensService.removePlant(gardenId, plant.plantId);
+      await GardenPlantsService.delete(gardenId, plant.plantId);
       setGardenPlants((items) => items.filter((item) => item.id !== plant.id));
     } catch (removeError) { setError(errorMessage(removeError)); }
   }

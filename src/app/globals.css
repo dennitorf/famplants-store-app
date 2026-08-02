@@ -212,11 +212,16 @@ a {
 }
 
 .image-placeholder {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
   padding: 2rem;
-  background: linear-gradient(145deg, #e8f4e2, #cfe8c4);
+  background:
+    radial-gradient(circle at 75% 20%, rgb(255 255 255 / 55%), transparent 28%),
+    linear-gradient(145deg, #eff8e9 0%, #dcefd2 52%, #c9e5bd 100%);
   color: #557064;
   font-weight: 700;
   text-align: center;

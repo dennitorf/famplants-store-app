@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { auth0 } from "@/lib/auth0";
-import type { FamPlantsUserDto } from "@/lib/auth/famplants-user";
+import type { FamPlantsUserDto } from "@/models/users/user";
 import { getFamPlantsApiAccessToken } from "@/lib/auth/access-token";
 import { apiBaseUrl } from "@/lib/config";
 

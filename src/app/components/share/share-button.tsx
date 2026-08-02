@@ -8,14 +8,17 @@ import { Button } from "@/components/ui/button";
 type ShareButtonProps = {
   label: string;
   hash?: string;
+  path?: string;
   className?: string;
 };
 
-export default function ShareButton({ label, hash, className }: ShareButtonProps) {
+export default function ShareButton({ label, hash, path, className }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
-    const url = new URL(window.location.href);
+    const url = path
+      ? new URL(path, window.location.origin)
+      : new URL(window.location.href);
 
     if (hash) {
       url.hash = hash;

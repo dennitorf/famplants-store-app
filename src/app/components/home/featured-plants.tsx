@@ -1,7 +1,7 @@
 import Link from "next/link";
 import PlantCard from "@/app/components/common/plant-card";
 import { EmptyState, ErrorState } from "@/app/components/common/async-state";
-import type { Plant } from "@/models/api";
+import type { Plant } from "@/models/plants/plant";
 
 interface FeaturedPlantsProps {
   plants: Plant[];
@@ -24,7 +24,7 @@ export default function FeaturedPlants({ plants, error }: FeaturedPlantsProps) {
         <ErrorState message={error} />
       ) : plants.length ? (
         <div className="catalog-grid">
-          {plants.map((plant) => <PlantCard key={plant.id} plant={plant} />)}
+          {plants.map((plant) => <PlantCard key={plant.id} plant={plant} returnTo="/home" />)}
         </div>
       ) : (
         <EmptyState title="No public plants yet" description="Published plants will appear here." />

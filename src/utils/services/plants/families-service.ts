@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/axios";
-import type { DataResponse, Family, Plant } from "@/models/api";
-import { createDataQuery } from "@/utils/services/data-query";
+import type { DataResponse } from "@/models/data/data-response";
+import type { Family } from "@/models/plants/family";
+import { createDataQuery } from "@/utils/helpers/data-query";
 
 export class FamiliesService {
   private static readonly baseUrl = "/ns-plants/api/families";
@@ -14,17 +15,6 @@ export class FamiliesService {
 
   public static async getById(id: string): Promise<Family> {
     const response = await apiClient.get<Family>(`${this.baseUrl}/${id}`);
-    return response.data;
-  }
-
-  public static async getPlants(
-    id: string,
-    page = 1,
-    pageSize = 24,
-  ): Promise<DataResponse<Plant>> {
-    const response = await apiClient.get<DataResponse<Plant>>(
-      `${this.baseUrl}/${id}/plants?${createDataQuery(page, pageSize)}`,
-    );
     return response.data;
   }
 }

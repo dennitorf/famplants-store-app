@@ -1,21 +1,32 @@
 import Link from "next/link";
 import { ArrowUpRight, Droplets, Sun } from "lucide-react";
-import type { Plant } from "@/models/api";
+import type { Plant } from "@/models/plants/plant";
+import CatalogImage from "@/app/components/common/catalog-image";
 
-export default function PlantCard({ plant }: { plant: Plant }) {
-  const image = plant.thumbnailUrl || plant.url;
+interface PlantCardProps {
+  plant: Plant;
+  returnTo?: string;
+}
+
+export default function PlantCard({ plant, returnTo = "/plants" }: PlantCardProps) {
+  const image = plant.mainImage?.thumbnailUrl
+    || plant.mainImage?.url
+    || plant.thumbnailUrl
+    || plant.url;
+  const imageAlt = plant.mainImage?.altText || plant.altText || plant.name || "Plant";
 
   return (
     <article className="catalog-card group">
-      <Link href={`/plants/${plant.id}`} className="block">
+      <Link
+        href={`/plants/${plant.id}?returnTo=${encodeURIComponent(returnTo)}`}
+        className="block"
+      >
         <div className="catalog-image">
-          {image ? (
-            // API media can come from multiple storage providers.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt={plant.altText || plant.name || "Plant"} />
-          ) : (
-            <div className="image-placeholder">Plant photo coming soon</div>
-          )}
+          <CatalogImage
+            src={image}
+            alt={imageAlt}
+            placeholderLabel="Plant photo coming soon"
+          />
         </div>
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">

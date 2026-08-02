@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowUpRight, PackageCheck, Tags } from "lucide-react";
-import type { Product, ProductImage } from "@/models/api";
+import type { Product } from "@/models/products/product";
+import type { ProductImage } from "@/models/products/product-image";
+import CatalogImage from "@/app/components/common/catalog-image";
 
 export default function ProductCard({ product, image }: { product: Product; image?: ProductImage }) {
   const hasDiscount = product.discountAmount > 0 && product.effectivePrice < product.basePrice;
@@ -9,12 +11,11 @@ export default function ProductCard({ product, image }: { product: Product; imag
     <article className="catalog-card group">
       <Link href={`/products/${product.id}`}>
         <div className="catalog-image relative">
-          {image?.thumbnailUrl || image?.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image.thumbnailUrl || image.url} alt={image.altText || product.name} />
-          ) : (
-            <div className="image-placeholder">Product photo coming soon</div>
-          )}
+          <CatalogImage
+            src={image?.thumbnailUrl || image?.url}
+            alt={image?.altText || product.name}
+            placeholderLabel="Product photo coming soon"
+          />
           {hasDiscount ? <span className="absolute left-4 top-4 rounded-full bg-[#f2b84b] px-3 py-1 text-xs font-extrabold text-[#573c00]">Save ${product.discountAmount.toFixed(2)}</span> : null}
         </div>
         <div className="p-5">

@@ -2,15 +2,17 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { BookOpen, LocateFixed, MapPin, ThumbsUp } from "lucide-react";
-import type {
-  CareGuide,
-  CareGuideApplicableHardinessZone,
-  CareGuideApplicableType,
-  CareInformation,
-  HardinessZone,
-} from "@/models/api";
+import type { CareGuide } from "@/models/plants/care-guide";
+import type { CareGuideApplicableHardinessZone } from "@/models/plants/care-guide-applicable-hardiness-zone";
+import type { CareGuideApplicableType } from "@/models/plants/care-guide-applicable-type";
+import type { CareInformation } from "@/models/plants/care-information";
+import type { HardinessZone } from "@/models/plants/hardiness-zone";
 import { plainText } from "@/lib/text";
-import { PlantsService } from "@/utils/services/plants/plants-service";
+import { CareGuideHardinessZonesService } from "@/utils/services/plants/care-guide-hardiness-zones-service";
+import { CareGuidesService } from "@/utils/services/plants/care-guides-service";
+import { CareGuideTypesService } from "@/utils/services/plants/care-guide-types-service";
+import { CareInformationService } from "@/utils/services/plants/care-information-service";
+import { HardinessZonesService } from "@/utils/services/plants/hardiness-zones-service";
 import RichHtml from "@/app/components/common/rich-html";
 
 interface GuideMetadata {
@@ -46,11 +48,11 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
     let active = true;
     async function load() {
       try {
-        const careGuides = await PlantsService.getCareGuides(plantId);
+        const careGuides = await CareGuidesService.getByPlantId(plantId);
         const entries = await Promise.all(careGuides.map(async (guide) => {
           const [hardinessZones, types] = await Promise.all([
-            PlantsService.getCareGuideHardinessZones(guide.id),
-            PlantsService.getCareGuideTypes(guide.id),
+            CareGuideHardinessZonesService.getAll(guide.id),
+            CareGuideTypesService.getAll(guide.id),
           ]);
           return [guide.id, { hardinessZones, types }] as const;
         }));
@@ -81,7 +83,7 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
         void resolveLocation(position.coords.latitude, position.coords.longitude)
           .then(async (result) => {
             if (!active || !result.postalCode) return;
-            const zone = await PlantsService.getHardinessZoneByZip(result.postalCode);
+            const zone = await HardinessZonesService.getByZipCode(result.postalCode);
             if (!active) return;
             setZipCode(result.postalCode);
             setHardinessZone(zone);
@@ -147,7 +149,7 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
       }
       setIsLoadingInformation(true);
       try {
-        const items = await PlantsService.getCareInformation(selection.selectedGuideId);
+        const items = await CareInformationService.getAll(selection.selectedGuideId);
         if (active) setInformation(sortInformation(items));
       } catch {
         if (active) setInformation([]);
@@ -169,7 +171,7 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
     setIsLocating(true);
     setLocationMessage(null);
     try {
-      const zone = await PlantsService.getHardinessZoneByZip(normalizedZip);
+      const zone = await HardinessZonesService.getByZipCode(normalizedZip);
       setZipCode(normalizedZip);
       setHardinessZone(zone);
       setTypeId(null);
@@ -190,7 +192,7 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
     setRatingError(null);
     setRatingIds((current) => new Set(current).add(item.id));
     try {
-      const updated = await PlantsService.rateCareInformation(selectedGuideId, item.id);
+      const updated = await CareInformationService.rate(selectedGuideId, item.id);
       setInformation((current) => sortInformation(current.map((entry) => entry.id === updated.id ? updated : entry)));
       setRatedIds((current) => new Set(current).add(item.id));
     } catch {
@@ -212,7 +214,7 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
   const visibleInformation = information.filter((item) => plainText(item.content));
 
   return (
-    <section className="pb-16">
+    <section>
       <div className="flex items-center gap-3">
         <span className="grid h-11 w-11 place-items-center rounded-full bg-[#e4f4dc] text-[#12613f]"><BookOpen className="h-5 w-5" /></span>
         <div><p className="eyebrow">Grow with confidence</p><h2 className="text-3xl font-bold text-[#0A3D27]">Care information</h2></div>

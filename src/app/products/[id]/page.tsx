@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Leaf, PackageCheck, Sparkles } from "lucide-react";
 import StoreShell from "@/app/components/layout/store-shell";
 import { ErrorState } from "@/app/components/common/async-state";
 import { ProductsService } from "@/utils/services/products/products-service";
+import { ProductImagesService } from "@/utils/services/products/product-images-service";
 import { errorMessage, plainText } from "@/lib/text";
 import AddToCartButton from "@/app/components/cart/add-to-cart-button";
 import RichHtml from "@/app/components/common/rich-html";
@@ -14,7 +15,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   try {
     const [product, images] = await Promise.all([
       ProductsService.getById(id),
-      ProductsService.getImages(id).catch(() => []),
+      ProductImagesService.getAll(id).catch(() => []),
     ]);
     const image = images.find((item) => item.isPrimary) ?? images[0];
     const hasDiscount = product.discountAmount > 0 && product.effectivePrice < product.basePrice;

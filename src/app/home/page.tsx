@@ -10,6 +10,7 @@ import { loadResult } from "@/lib/result";
 import { FamiliesService } from "@/utils/services/plants/families-service";
 import { PlantsService } from "@/utils/services/plants/plants-service";
 import { ProductsService } from "@/utils/services/products/products-service";
+import { ProductImagesService } from "@/utils/services/products/product-images-service";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export default async function Home() {
   const productImageEntries = await Promise.all(
     products.map(async (product) => [
       product.id,
-      (await ProductsService.getImages(product.id).catch(() => []))[0],
+      (await ProductImagesService.getAll(product.id).catch(() => []))[0],
     ] as const),
   );
 

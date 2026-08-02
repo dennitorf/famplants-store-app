@@ -1,19 +1,12 @@
 import { apiClient } from "@/lib/axios";
-import type { DataResponse, Plant, Tag } from "@/models/api";
-import { createDataQuery } from "@/utils/services/data-query";
+import type { Plant } from "@/models/plants/plant";
+import type { Tag } from "@/models/plants/tag";
 
 export class PlantTagsService {
   private static readonly baseUrl = "/ns-plants/api/tags";
 
-  public static async getAll(page = 1, pageSize = 60): Promise<DataResponse<Tag>> {
-    const response = await apiClient.get<DataResponse<Tag>>(
-      `${this.baseUrl}?${createDataQuery(page, pageSize)}`,
-    );
-    return response.data;
-  }
-
-  public static async getById(id: string): Promise<Tag> {
-    const response = await apiClient.get<Tag>(`${this.baseUrl}/${id}`);
+  public static async getTagsByPlant(plantId: string): Promise<Tag[]> {
+    const response = await apiClient.get<Tag[]>(`/ns-plants/api/plants/${plantId}/tags`);
     return response.data;
   }
 

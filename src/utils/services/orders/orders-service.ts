@@ -1,6 +1,7 @@
 import { apiBaseUrl } from "@/lib/config";
 import { getFamPlantsApiAccessToken } from "@/lib/auth/access-token";
-import type { CreateOrderRequest, DataResponse, Order, OrderListItem } from "@/models/api";
+import type { DataResponse } from "@/models/data/data-response";
+import type { CreateOrderRequest, Order, OrderListItem } from "@/models/orders/order";
 
 export class OrdersApiError extends Error {
   public constructor(public readonly status: number, message: string) {

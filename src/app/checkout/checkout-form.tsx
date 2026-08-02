@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import type { CreateOrderRequest, Order, OrderAddress } from "@/models/api";
+import type { CreateOrderRequest, Order, OrderAddress } from "@/models/orders/order";
 import type { RootState } from "@/store";
 import { cartActions } from "@/store/cart-slice";
 
