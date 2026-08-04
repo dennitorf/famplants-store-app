@@ -5,9 +5,6 @@ export interface Family {
   slug?: string;
   name?: string;
   mustKnow?: string;
-  url?: string;
-  thumbnailUrl?: string;
-  altText?: string;
   mainImage?: MainImage;
   isActive: boolean;
   isPublic: boolean;

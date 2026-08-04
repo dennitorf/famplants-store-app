@@ -6,8 +6,7 @@ import CatalogImage from "@/app/components/common/catalog-image";
 
 export default function CollectionCard({ collection }: { collection: PlantCollection }) {
   const image = collection.mainImage?.thumbnailUrl
-    || collection.mainImage?.url
-    || collection.thumbnailUrl;
+    || collection.mainImage?.url;
 
   return (
     <article className="catalog-card group">

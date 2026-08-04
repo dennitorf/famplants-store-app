@@ -6,6 +6,7 @@ import { ErrorState, EmptyState } from "@/app/components/common/async-state";
 import { FamiliesService } from "@/utils/services/plants/families-service";
 import { FamilyPlantsService } from "@/utils/services/plants/family-plants-service";
 import { plainText } from "@/lib/text";
+import RichHtml from "@/app/components/common/rich-html";
 import { loadResult } from "@/lib/result";
 import { isGuid } from "@/utils/helpers/entity-key";
 
@@ -25,7 +26,7 @@ export default async function FamilyPage({ params }: { params: Promise<{ slug: s
     return <StoreShell><div className="py-14"><ErrorState message={result.error} /></div></StoreShell>;
   }
   const plants = result.data;
-  const familyImage = family.mainImage?.url || family.mainImage?.thumbnailUrl || family.url || family.thumbnailUrl;
+  const familyImage = family.mainImage?.url || family.mainImage?.thumbnailUrl;
   return (
     <StoreShell>
         <div className="py-6"><Link href="/families" className="inline-flex items-center gap-2 text-sm font-bold text-[#416a58]"><ArrowLeft className="h-4 w-4" /> Back to families</Link></div>
@@ -33,13 +34,13 @@ export default async function FamilyPage({ params }: { params: Promise<{ slug: s
           <div className="overflow-hidden rounded-[2rem] bg-[#eaf4e5]">
             {familyImage ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={familyImage} alt={family.mainImage?.altText || family.altText || family.name || "Plant family"} className="h-full min-h-80 w-full object-cover" />
+              <img src={familyImage} alt={family.mainImage?.altText || family.name || "Plant family"} className="h-full min-h-80 w-full object-cover" />
             ) : <div className="image-placeholder min-h-80">Family photo coming soon</div>}
           </div>
           <div className="self-center py-4">
             <p className="eyebrow">Plant family</p>
             <h1 className="mt-2 font-[family-name:var(--font-joti-one)] text-5xl text-[#0A3D27]">{family.name}</h1>
-            <p className="mt-5 text-lg leading-8 text-[#557064]">{plainText(family.mustKnow) || "Care guidance is coming soon."}</p>
+            {plainText(family.mustKnow) ? <RichHtml content={family.mustKnow ?? ""} className="mt-5 text-lg" /> : <p className="mt-5 text-lg leading-8 text-[#557064]">Care guidance is coming soon.</p>}
           </div>
         </section>
         <section className="pb-12">

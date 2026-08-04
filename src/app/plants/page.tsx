@@ -2,6 +2,7 @@ import { PlantsService } from "@/utils/services/plants/plants-service";
 import { PlantTagsService } from "@/utils/services/plants/plant-tags-service";
 import { TagsService } from "@/utils/services/plants/tags-service";
 import { loadResult } from "@/lib/result";
+import { plainText } from "@/lib/text";
 import PageHero from "@/app/components/common/page-hero";
 import PlantCard from "@/app/components/common/plant-card";
 import { EmptyState, ErrorState } from "@/app/components/common/async-state";
@@ -51,7 +52,7 @@ export async function PlantCatalog({ selectedTagSlug }: { selectedTagSlug?: stri
       <PageHero
         eyebrow={selectedTag ? "Plants by tag" : "Plant library"}
         title={selectedTag?.name || "Meet your next favorite plant."}
-        description={selectedTag?.description || "Browse the public FamPlants catalog, learn what each plant needs, and find the right fit for your home or garden."}
+        description={plainText(selectedTag?.description) || "Browse the public FamPlants catalog, learn what each plant needs, and find the right fit for your home or garden."}
       />
       {tagsResult.error ? <div className="mb-8"><ErrorState message={tagsResult.error} /></div> : null}
       <div className="grid gap-8 pb-12 lg:grid-cols-[17rem_minmax(0,1fr)]">

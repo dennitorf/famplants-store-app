@@ -6,9 +6,7 @@ import CatalogImage from "@/app/components/common/catalog-image";
 
 export default function FamilyCard({ family }: { family: Family }) {
   const image = family.mainImage?.thumbnailUrl
-    || family.mainImage?.url
-    || family.thumbnailUrl
-    || family.url;
+    || family.mainImage?.url;
 
   return (
     <article className="catalog-card group">
@@ -16,7 +14,7 @@ export default function FamilyCard({ family }: { family: Family }) {
         <div className="catalog-image">
           <CatalogImage
             src={image}
-            alt={family.mainImage?.altText || family.altText || family.name || "Plant family"}
+            alt={family.mainImage?.altText || family.name || "Plant family"}
             placeholderLabel="Family photo coming soon"
           />
         </div>

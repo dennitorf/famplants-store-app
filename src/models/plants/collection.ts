@@ -6,7 +6,6 @@ export interface PlantCollection {
   description?: string;
   shortDescription?: string;
   slug?: string;
-  thumbnailUrl?: string;
   mainImage?: MainImage;
   isPublic: boolean;
   isActive: boolean;
