@@ -2,14 +2,19 @@ import Link from "next/link";
 import { ArrowUpRight, Droplets, Sun } from "lucide-react";
 import type { Plant } from "@/models/plants/plant";
 import CatalogImage from "@/app/components/common/catalog-image";
+import { getCardImageUrl } from "@/utils/helpers/image-catalog";
+import { PlantImagesService } from "@/utils/services/plants/plant-images-service";
 
 interface PlantCardProps {
   plant: Plant;
   returnTo?: string;
 }
 
-export default function PlantCard({ plant, returnTo = "/plants" }: PlantCardProps) {
-  const image = plant.mainImage?.thumbnailUrl
+export default async function PlantCard({ plant, returnTo = "/plants" }: PlantCardProps) {
+  const imageCatalog = await PlantImagesService.getAll(plant.id).catch(() => []);
+  const primaryImage = imageCatalog.find((image) => image.isPrimary) ?? imageCatalog[0];
+  const image = getCardImageUrl(primaryImage)
+    || plant.mainImage?.thumbnailUrl
     || plant.mainImage?.url
     || plant.thumbnailUrl
     || plant.url;

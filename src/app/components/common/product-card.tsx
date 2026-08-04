@@ -3,6 +3,7 @@ import { ArrowUpRight, PackageCheck, Tags } from "lucide-react";
 import type { Product } from "@/models/products/product";
 import type { ProductImage } from "@/models/products/product-image";
 import CatalogImage from "@/app/components/common/catalog-image";
+import { getCardImageUrl } from "@/utils/helpers/image-catalog";
 
 export default function ProductCard({ product, image }: { product: Product; image?: ProductImage }) {
   const hasDiscount = product.discountAmount > 0 && product.effectivePrice < product.basePrice;
@@ -12,7 +13,7 @@ export default function ProductCard({ product, image }: { product: Product; imag
       <Link href={`/products/${product.slug}`}>
         <div className="catalog-image relative">
           <CatalogImage
-            src={image?.thumbnailUrl || image?.url}
+            src={getCardImageUrl(image)}
             alt={image?.altText || product.name}
             placeholderLabel="Product photo coming soon"
           />

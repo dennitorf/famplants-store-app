@@ -3,6 +3,10 @@
 import { useState } from "react";
 import type { PlantImage } from "@/models/plants/plant-image";
 import CatalogImage from "@/app/components/common/catalog-image";
+import {
+  getDetailImageUrl,
+  getThumbnailImageUrl,
+} from "@/utils/helpers/image-catalog";
 
 interface PlantImageGalleryProps {
   images: PlantImage[];
@@ -21,10 +25,11 @@ export default function PlantImageGallery({
   const visibleImages = orderedImages.length
     ? orderedImages.map((image) => ({
         id: image.id,
-        url: image.url || image.thumbnailUrl,
+        url: getDetailImageUrl(image),
+        thumbnailUrl: getThumbnailImageUrl(image),
         alt: image.altText || plantName,
       }))
-    : [{ id: "fallback", url: fallbackUrl, alt: fallbackAlt || plantName }];
+    : [{ id: "fallback", url: fallbackUrl, thumbnailUrl: fallbackUrl, alt: fallbackAlt || plantName }];
   const [selectedImageId, setSelectedImageId] = useState(visibleImages[0].id);
   const selectedImage = visibleImages.find((image) => image.id === selectedImageId)
     ?? visibleImages[0];
@@ -57,7 +62,7 @@ export default function PlantImageGallery({
                 }`}
               >
                 <CatalogImage
-                  src={image.url}
+                  src={image.thumbnailUrl}
                   alt=""
                   placeholderLabel={`Image ${index + 1}`}
                 />

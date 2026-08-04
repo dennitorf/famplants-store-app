@@ -11,6 +11,10 @@ import RichHtml from "@/app/components/common/rich-html";
 import { isGuid } from "@/utils/helpers/entity-key";
 import { ProductTagsService } from "@/utils/services/products/product-tags-service";
 import TagIcon from "@/app/components/plants/tag-icon";
+import {
+  getDetailImageUrl,
+  getThumbnailImageUrl,
+} from "@/utils/helpers/image-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +34,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     ]);
     const includedPlantSlugs = new Map(includedPlantEntries);
     const image = images.find((item) => item.isPrimary) ?? images[0];
+    const detailImageUrl = getDetailImageUrl(image);
+    const cartImageUrl = getThumbnailImageUrl(image);
     const hasDiscount = product.discountAmount > 0 && product.effectivePrice < product.basePrice;
 
     return (
@@ -37,9 +43,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="py-6"><Link href="/products" className="inline-flex items-center gap-2 text-sm font-bold text-[#416a58]"><ArrowLeft className="h-4 w-4" /> Back to the shop</Link></div>
         <section className="grid gap-8 pb-12 lg:grid-cols-[1.05fr_.95fr]">
           <div className="overflow-hidden rounded-[2rem] bg-[#eaf4e5] lg:sticky lg:top-24 lg:h-fit">
-            {image?.url || image?.thumbnailUrl ? (
+            {detailImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={image.url || image.thumbnailUrl} alt={image.altText || product.name} className="aspect-square w-full object-cover" />
+              <img src={detailImageUrl} alt={image?.altText || product.name} className="aspect-square w-full object-cover" />
             ) : <div className="image-placeholder aspect-square">Product photo coming soon</div>}
           </div>
           <div className="py-3">
@@ -77,7 +83,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </ul>
               </div>
             ) : null}
-            <AddToCartButton productId={product.id} productSlug={product.slug} name={product.name} sku={product.sku} unitPrice={product.effectivePrice} imageUrl={image?.thumbnailUrl || image?.url} disabled={product.primaryStockLevel <= 0} />
+            <AddToCartButton productId={product.id} productSlug={product.slug} name={product.name} sku={product.sku} unitPrice={product.effectivePrice} imageUrl={cartImageUrl} disabled={product.primaryStockLevel <= 0} />
           </div>
         </section>
         {plainText(product.longDescription) ? <section className="mb-16 rounded-[2rem] border border-emerald-950/10 bg-white p-7 md:p-10"><p className="eyebrow">Product details</p><h2 className="mt-2 text-3xl font-bold text-[#0A3D27]">Description</h2><RichHtml content={product.longDescription ?? ""} className="mt-5" /></section> : null}
