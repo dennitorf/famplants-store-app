@@ -10,7 +10,7 @@ import RichHtml from "@/app/components/common/rich-html";
 import { loadResult } from "@/lib/result";
 import { isGuid } from "@/utils/helpers/entity-key";
 import { FamilyImagesService } from "@/utils/services/plants/family-images-service";
-import { getDetailImageUrl } from "@/utils/helpers/image-catalog";
+import CatalogImageGallery from "@/app/components/common/catalog-image-gallery";
 
 export const dynamic = "force-dynamic";
 
@@ -31,20 +31,18 @@ export default async function FamilyPage({ params }: { params: Promise<{ slug: s
     return <StoreShell><div className="py-14"><ErrorState message={result.error} /></div></StoreShell>;
   }
   const plants = result.data;
-  const primaryImage = familyImages.find((image) => image.isPrimary) ?? familyImages[0];
-  const familyImage = getDetailImageUrl(primaryImage)
-    || family.mainImage?.url
-    || family.mainImage?.thumbnailUrl;
   return (
     <StoreShell>
         <div className="py-6"><Link href="/families" className="inline-flex items-center gap-2 text-sm font-bold text-[#416a58]"><ArrowLeft className="h-4 w-4" /> Back to families</Link></div>
         <section className="grid gap-8 pb-10 lg:grid-cols-[.8fr_1.2fr]">
-          <div className="overflow-hidden rounded-[2rem] bg-[#eaf4e5]">
-            {familyImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={familyImage} alt={primaryImage?.altText || family.mainImage?.altText || family.name || "Plant family"} className="h-full min-h-80 w-full object-cover" />
-            ) : <div className="image-placeholder min-h-80">Family photo coming soon</div>}
-          </div>
+          <CatalogImageGallery
+            images={familyImages}
+            subjectName={family.name || "Plant family"}
+            fallbackUrl={family.mainImage?.url || family.mainImage?.thumbnailUrl}
+            fallbackAlt={family.mainImage?.altText}
+            placeholderLabel="Family photo coming soon"
+            chooserLabel="Choose a family image"
+          />
           <div className="self-center py-4">
             <p className="eyebrow">Plant family</p>
             <h1 className="mt-2 font-[family-name:var(--font-joti-one)] text-5xl text-[#0A3D27]">{family.name}</h1>

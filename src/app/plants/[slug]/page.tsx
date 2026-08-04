@@ -11,7 +11,7 @@ import { loadResult } from "@/lib/result";
 import PlantCareInformation from "@/app/components/plants/plant-care-information";
 import PlantCommonIssues from "@/app/components/plants/plant-common-issues";
 import PlantDetailTabs from "@/app/components/plants/plant-detail-tabs";
-import PlantImageGallery from "@/app/components/plants/plant-image-gallery";
+import CatalogImageGallery from "@/app/components/common/catalog-image-gallery";
 import TagIcon from "@/app/components/plants/tag-icon";
 import ShareButton from "@/app/components/share/share-button";
 import { isGuid } from "@/utils/helpers/entity-key";
@@ -78,11 +78,13 @@ export default async function PlantDetailPage({ params, searchParams }: PlantDet
           </div>
         </div>
         <section className="grid gap-8 pb-12 lg:grid-cols-[1.05fr_.95fr]">
-          <PlantImageGallery
+          <CatalogImageGallery
             images={images}
-            plantName={plant.name || "Plant"}
+            subjectName={plant.name || "Plant"}
             fallbackUrl={plant.mainImage?.url || plant.mainImage?.thumbnailUrl || plant.url || plant.thumbnailUrl}
             fallbackAlt={plant.mainImage?.altText || plant.altText}
+            placeholderLabel="Plant photo coming soon"
+            chooserLabel="Choose a plant image"
           />
           <div className="py-3">
             <p className="eyebrow">{plant.family?.name || "Plant profile"}</p>
