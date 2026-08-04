@@ -11,10 +11,8 @@ import RichHtml from "@/app/components/common/rich-html";
 import { isGuid } from "@/utils/helpers/entity-key";
 import { ProductTagsService } from "@/utils/services/products/product-tags-service";
 import TagIcon from "@/app/components/plants/tag-icon";
-import {
-  getDetailImageUrl,
-  getThumbnailImageUrl,
-} from "@/utils/helpers/image-catalog";
+import { getThumbnailImageUrl } from "@/utils/helpers/image-catalog";
+import CatalogImageGallery from "@/app/components/common/catalog-image-gallery";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +32,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     ]);
     const includedPlantSlugs = new Map(includedPlantEntries);
     const image = images.find((item) => item.isPrimary) ?? images[0];
-    const detailImageUrl = getDetailImageUrl(image);
     const cartImageUrl = getThumbnailImageUrl(image);
     const hasDiscount = product.discountAmount > 0 && product.effectivePrice < product.basePrice;
 
@@ -42,11 +39,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <StoreShell>
         <div className="py-6"><Link href="/products" className="inline-flex items-center gap-2 text-sm font-bold text-[#416a58]"><ArrowLeft className="h-4 w-4" /> Back to the shop</Link></div>
         <section className="grid gap-8 pb-12 lg:grid-cols-[1.05fr_.95fr]">
-          <div className="overflow-hidden rounded-[2rem] bg-[#eaf4e5] lg:sticky lg:top-24 lg:h-fit">
-            {detailImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={detailImageUrl} alt={image?.altText || product.name} className="aspect-square w-full object-cover" />
-            ) : <div className="image-placeholder aspect-square">Product photo coming soon</div>}
+          <div className="lg:sticky lg:top-24 lg:h-fit">
+            <CatalogImageGallery
+              images={images}
+              subjectName={product.name}
+              placeholderLabel="Product photo coming soon"
+              chooserLabel="Choose a product image"
+            />
           </div>
           <div className="py-3">
             <p className="eyebrow">{product.categoryName || "FamPlants shop"}</p>
