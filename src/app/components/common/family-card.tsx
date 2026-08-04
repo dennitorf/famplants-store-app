@@ -3,9 +3,14 @@ import { ArrowUpRight } from "lucide-react";
 import type { Family } from "@/models/plants/family";
 import { plainText } from "@/lib/text";
 import CatalogImage from "@/app/components/common/catalog-image";
+import { getCardImageUrl } from "@/utils/helpers/image-catalog";
+import { FamilyImagesService } from "@/utils/services/plants/family-images-service";
 
-export default function FamilyCard({ family }: { family: Family }) {
-  const image = family.mainImage?.thumbnailUrl
+export default async function FamilyCard({ family }: { family: Family }) {
+  const imageCatalog = await FamilyImagesService.getAll(family.id).catch(() => []);
+  const primaryImage = imageCatalog.find((image) => image.isPrimary) ?? imageCatalog[0];
+  const image = getCardImageUrl(primaryImage)
+    || family.mainImage?.thumbnailUrl
     || family.mainImage?.url;
 
   return (
@@ -14,7 +19,7 @@ export default function FamilyCard({ family }: { family: Family }) {
         <div className="catalog-image">
           <CatalogImage
             src={image}
-            alt={family.mainImage?.altText || family.name || "Plant family"}
+            alt={primaryImage?.altText || family.mainImage?.altText || family.name || "Plant family"}
             placeholderLabel="Family photo coming soon"
           />
         </div>

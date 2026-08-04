@@ -9,6 +9,8 @@ import { plainText } from "@/lib/text";
 import RichHtml from "@/app/components/common/rich-html";
 import { loadResult } from "@/lib/result";
 import { isGuid } from "@/utils/helpers/entity-key";
+import { FamilyImagesService } from "@/utils/services/plants/family-images-service";
+import { getDetailImageUrl } from "@/utils/helpers/image-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +23,18 @@ export default async function FamilyPage({ params }: { params: Promise<{ slug: s
     return <StoreShell><div className="py-14"><ErrorState message={familyResult.error} /></div></StoreShell>;
   }
   const family = familyResult.data;
-  const result = await loadResult(FamilyPlantsService.getAll(family.id, 1, 60));
+  const [result, familyImages] = await Promise.all([
+    loadResult(FamilyPlantsService.getAll(family.id, 1, 60)),
+    FamilyImagesService.getAll(family.id).catch(() => []),
+  ]);
   if (result.data === null) {
     return <StoreShell><div className="py-14"><ErrorState message={result.error} /></div></StoreShell>;
   }
   const plants = result.data;
-  const familyImage = family.mainImage?.url || family.mainImage?.thumbnailUrl;
+  const primaryImage = familyImages.find((image) => image.isPrimary) ?? familyImages[0];
+  const familyImage = getDetailImageUrl(primaryImage)
+    || family.mainImage?.url
+    || family.mainImage?.thumbnailUrl;
   return (
     <StoreShell>
         <div className="py-6"><Link href="/families" className="inline-flex items-center gap-2 text-sm font-bold text-[#416a58]"><ArrowLeft className="h-4 w-4" /> Back to families</Link></div>
@@ -34,7 +42,7 @@ export default async function FamilyPage({ params }: { params: Promise<{ slug: s
           <div className="overflow-hidden rounded-[2rem] bg-[#eaf4e5]">
             {familyImage ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={familyImage} alt={family.mainImage?.altText || family.name || "Plant family"} className="h-full min-h-80 w-full object-cover" />
+              <img src={familyImage} alt={primaryImage?.altText || family.mainImage?.altText || family.name || "Plant family"} className="h-full min-h-80 w-full object-cover" />
             ) : <div className="image-placeholder min-h-80">Family photo coming soon</div>}
           </div>
           <div className="self-center py-4">
