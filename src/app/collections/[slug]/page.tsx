@@ -9,6 +9,9 @@ import { isGuid } from "@/utils/helpers/entity-key";
 import { CollectionsService } from "@/utils/services/plants/collections-service";
 import { PlantCollectionsService } from "@/utils/services/plants/plant-collections-service";
 import ShareButton from "@/app/components/share/share-button";
+import CatalogImageGallery from "@/app/components/common/catalog-image-gallery";
+import { CollectionImagesService } from "@/utils/services/plants/collection-images-service";
+import type { CollectionImage } from "@/models/plants/collection-image";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +25,15 @@ export default async function CollectionPage({
     isGuid(slug) ? CollectionsService.getById(slug) : CollectionsService.getBySlug(slug),
   );
   const collection = collectionResult.data;
-  const plantsResult = collection
-    ? await loadResult(PlantCollectionsService.getPlants(collection.id))
-    : { data: null, error: collectionResult.error };
+  const related = collection
+    ? await Promise.all([
+        loadResult(PlantCollectionsService.getPlants(collection.id)),
+        CollectionImagesService.getAll(collection.id).catch(() => []),
+      ])
+    : null;
+  const plantsResult = related?.[0]
+    ?? { data: null, error: collectionResult.error };
+  const collectionImages: CollectionImage[] = related?.[1] ?? [];
   const collectionPlants = plantsResult.data;
   const collectionPath = `/collections/${collection?.slug || slug}`;
 
@@ -46,15 +55,25 @@ export default async function CollectionPage({
         {!collection ? (
           <ErrorState message={collectionResult.error} />
         ) : (
-          <div className="mb-8 rounded-3xl bg-[#eaf4e5] p-6 sm:p-8">
-            <p className="eyebrow">Plant collection</p>
-            <h1 className="mt-2 font-[family-name:var(--font-joti-one)] text-4xl text-[#0A3D27] sm:text-5xl">
-              {collection.name || "Plant collection"}
-            </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-[#557064]">
-              {plainText(collection.description || collection.shortDescription)
-                || "Explore the plants selected for this collection."}
-            </p>
+          <div className="mb-8 grid gap-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+            <CatalogImageGallery
+              images={collectionImages}
+              subjectName={collection.name || "Plant collection"}
+              fallbackUrl={collection.mainImage?.url || collection.mainImage?.thumbnailUrl}
+              fallbackAlt={collection.mainImage?.altText}
+              placeholderLabel="Collection photo coming soon"
+              chooserLabel="Choose a collection image"
+            />
+            <div className="rounded-3xl bg-[#eaf4e5] p-6 sm:p-8">
+              <p className="eyebrow">Plant collection</p>
+              <h1 className="mt-2 font-[family-name:var(--font-joti-one)] text-4xl text-[#0A3D27] sm:text-5xl">
+                {collection.name || "Plant collection"}
+              </h1>
+              <p className="mt-4 max-w-3xl text-base leading-7 text-[#557064]">
+                {plainText(collection.description || collection.shortDescription)
+                  || "Explore the plants selected for this collection."}
+              </p>
+            </div>
           </div>
         )}
 
@@ -70,7 +89,7 @@ export default async function CollectionPage({
           ) : null}
         </div>
         {!collectionPlants ? (
-          <ErrorState message={plantsResult.error} />
+          <ErrorState message={plantsResult.error ?? "Collection plants could not be loaded."} />
         ) : collectionPlants.data.length ? (
           <div className="catalog-grid">
             {collectionPlants.data.map((plant) => (
