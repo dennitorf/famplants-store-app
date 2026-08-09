@@ -10,6 +10,13 @@ export class GardenPlantsService {
     return response.data;
   }
 
+  public static async getById(gardenId: string, gardenPlantId: string): Promise<GardenPlant> {
+    const response = await apiClient.get<GardenPlant>(
+      `${this.gardensBaseUrl}/${gardenId}/plants/${gardenPlantId}`,
+    );
+    return response.data;
+  }
+
   public static async create(gardenId: string, data: SaveGardenPlantRequest): Promise<GardenPlant> {
     const response = await apiClient.post<GardenPlant>(`${this.gardensBaseUrl}/${gardenId}/plants`, data);
     return response.data;
