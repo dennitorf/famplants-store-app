@@ -15,6 +15,10 @@ import CatalogImageGallery from "@/app/components/common/catalog-image-gallery";
 import TagIcon from "@/app/components/plants/tag-icon";
 import ShareButton from "@/app/components/share/share-button";
 import { isGuid } from "@/utils/helpers/entity-key";
+import RelatedProductsCarousel, { type RelatedProductItem } from "@/app/components/products/related-products-carousel";
+import { PlantProductsService } from "@/utils/services/products/plant-products-service";
+import { ProductsService } from "@/utils/services/products/products-service";
+import { ProductImagesService } from "@/utils/services/products/product-images-service";
 
 export const dynamic = "force-dynamic";
 
@@ -45,11 +49,28 @@ export default async function PlantDetailPage({ params, searchParams }: PlantDet
     const plant = isGuid(slug)
       ? await PlantsService.getById(slug)
       : await PlantsService.getBySlug(slug);
-    const [images, tags, issuesResult] = await Promise.all([
+    const [images, tags, issuesResult, productRelations] = await Promise.all([
       PlantImagesService.getAll(plant.id).catch(() => []),
       PlantTagsService.getTagsByPlant(plant.id).catch(() => []),
       loadResult(PlantIssuesService.getAll(plant.id)),
+      PlantProductsService.getAll(plant.id).then((response) => response.data).catch(() => []),
     ]);
+    const relatedProductIds = [...new Set(productRelations.map((relation) => relation.productId))];
+    const relatedProducts = (
+      await Promise.all(
+        relatedProductIds.map(async (productId): Promise<RelatedProductItem | null> => {
+          try {
+            const product = await ProductsService.getById(productId);
+            if (!product.isPublished) return null;
+            const productImages = await ProductImagesService.getAll(product.id).catch(() => []);
+            const image = productImages.find((item) => item.isPrimary) ?? productImages[0];
+            return { product, image };
+          } catch {
+            return null;
+          }
+        }),
+      )
+    ).filter((item): item is RelatedProductItem => item !== null);
     const orderedTags = [...tags].sort((left, right) => left.order - right.order);
     const issues = issuesResult.data?.data ?? [];
     const traits = [
@@ -125,6 +146,10 @@ export default async function PlantDetailPage({ params, searchParams }: PlantDet
             ) : null}
           </div>
         </section>
+        <RelatedProductsCarousel
+          items={relatedProducts}
+          plantName={plant.name || "this plant"}
+        />
         <PlantDetailTabs
           issueCount={issues.length}
           careInformation={<PlantCareInformation plantId={plant.id} />}
