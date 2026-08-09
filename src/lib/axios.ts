@@ -91,11 +91,18 @@ axiosInstance.interceptors.request.use(async (config) => {
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
-  (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
+  async (error) => {
+    const request = error.config as (AxiosRequestConfig & { famPlantsAuthRetried?: boolean }) | undefined;
+    if (error.response?.status === 401 && request && !request.famPlantsAuthRetried) {
       cachedAccessToken = null;
       cachedAccessTokenExpiresAt = 0;
-      redirectToLogin();
+      request.famPlantsAuthRetried = true;
+      const token = await getAccessTokenForRequest();
+      if (token) {
+        request.headers = request.headers ?? {};
+        request.headers.Authorization = `Bearer ${token}`;
+        return axiosInstance.request(request);
+      }
     }
     return Promise.reject(error);
   },

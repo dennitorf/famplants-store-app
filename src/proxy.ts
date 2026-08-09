@@ -15,6 +15,13 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  // Next.js can issue several RSC and prefetch requests for one navigation.
+  // Refreshing a rotating Auth0 token for every one of those requests races
+  // session-cookie updates and can make an authenticated user appear signed out.
+  if (!isDocumentNavigation(request)) {
+    return response;
+  }
+
   try {
     await auth0.getAccessToken(request, response, {
       audience: auth0Audience,
@@ -33,6 +40,14 @@ export async function proxy(request: NextRequest) {
     loginUrl.searchParams.set("prompt", "login");
     return NextResponse.redirect(loginUrl);
   }
+}
+
+function isDocumentNavigation(request: NextRequest): boolean {
+  const acceptsHtml = request.headers.get("accept")?.includes("text/html") ?? false;
+  const isRscRequest = request.headers.get("rsc") === "1";
+  const isPrefetch = request.headers.has("next-router-prefetch")
+    || request.headers.get("purpose") === "prefetch";
+  return request.method === "GET" && acceptsHtml && !isRscRequest && !isPrefetch;
 }
 
 function requiresFamPlantsAccessToken(pathname: string): boolean {
