@@ -14,10 +14,12 @@ import {
   HeartPulse,
   Leaf,
   MapPin,
+  Maximize2,
   Sprout,
   Sun,
   ThermometerSun,
   Trash2,
+  X,
 } from "lucide-react";
 import { EmptyState, ErrorState, LoadingState } from "@/app/components/common/async-state";
 import RichHtml from "@/app/components/common/rich-html";
@@ -42,6 +44,7 @@ export default function GardenPlantDetailClient({
   const [catalogPlant, setCatalogPlant] = useState<Plant>();
   const [reminders, setReminders] = useState<CareReminder[]>([]);
   const [photos, setPhotos] = useState<GardenPlantPhoto[]>([]);
+  const [selectedPhoto, setSelectedPhoto] = useState<GardenPlantPhoto>();
   const [photoCaption, setPhotoCaption] = useState("");
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [deletingPhotoId, setDeletingPhotoId] = useState<string>();
@@ -236,9 +239,12 @@ export default function GardenPlantDetailClient({
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {photos.map((photo) => (
               <article key={photo.id} className="group overflow-hidden rounded-[2rem] border border-emerald-950/10 bg-white shadow-sm">
-                {/* Blob hosts are configured per environment, so native images avoid a brittle domain allow-list. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.cardUrl || photo.thumbnailUrl || photo.url} alt={photo.altText || photo.caption || displayName} className="aspect-[4/3] w-full object-cover" />
+                <button type="button" aria-label="View full photo" onClick={() => setSelectedPhoto(photo)} className="group/photo relative block w-full overflow-hidden">
+                  {/* Blob hosts are configured per environment, so native images avoid a brittle domain allow-list. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={photo.cardUrl || photo.thumbnailUrl || photo.url} alt={photo.altText || photo.caption || displayName} className="aspect-[4/3] w-full object-cover transition duration-300 group-hover/photo:scale-[1.02]" />
+                  <span className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-black/55 text-white backdrop-blur-sm"><Maximize2 className="h-4 w-4" /></span>
+                </button>
                 <div className="flex items-start justify-between gap-3 p-5">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-[#71877c]">{new Date(photo.capturedDate).toLocaleDateString()}</p>
@@ -275,6 +281,18 @@ export default function GardenPlantDetailClient({
           {gardenPlant.notes ? <div className="mt-5 border-t pt-5"><p className="text-xs font-bold uppercase tracking-wider text-[#71877c]">Your notes</p><p className="mt-2 whitespace-pre-wrap text-[#557064]">{gardenPlant.notes}</p></div> : null}
         </div>
       </section>
+
+      {selectedPhoto ? (
+        <div role="dialog" aria-modal="true" aria-label="Plant photo" className="fixed inset-0 z-[90] grid place-items-center bg-black/90 p-4">
+          <button type="button" aria-label="Close full photo" onClick={() => setSelectedPhoto(undefined)} className="absolute inset-0" />
+          <div className="relative z-10 flex max-h-full max-w-6xl flex-col items-center gap-4">
+            <button type="button" aria-label="Close full photo" onClick={() => setSelectedPhoto(undefined)} className="absolute -right-2 -top-2 z-20 grid h-11 w-11 place-items-center rounded-full bg-white text-[#153f2f] shadow-xl"><X className="h-5 w-5" /></button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={selectedPhoto.url} alt={selectedPhoto.altText || selectedPhoto.caption || displayName} className="max-h-[82vh] max-w-full rounded-2xl object-contain shadow-2xl" />
+            {selectedPhoto.caption ? <p className="max-w-3xl text-center text-sm text-white/85">{selectedPhoto.caption}</p> : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

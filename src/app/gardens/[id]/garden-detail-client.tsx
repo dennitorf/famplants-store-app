@@ -200,25 +200,27 @@ export default function GardenDetailClient({ gardenId }: { gardenId: string }) {
   if (!garden) return <div className="py-12"><ErrorState message={error || "Garden not found."} /></div>;
 
   const selectedPlant = catalogPlants.find((plant) => plant.id === requestedPlantId);
+  const placeholderCoverUrl = gardenPlants.find((plant) => plant.photoCardUrl || plant.photoThumbnailUrl || plant.photoUrl);
+  const heroImageUrl = garden.coverPhotoUrl || garden.coverCardUrl || placeholderCoverUrl?.photoCardUrl || placeholderCoverUrl?.photoThumbnailUrl || placeholderCoverUrl?.photoUrl;
   return (
     <div className="pb-12">
       <div className="py-6"><Link href="/gardens" className="inline-flex items-center gap-2 text-sm font-bold text-[#416a58]"><ArrowLeft className="h-4 w-4" /> Back to gardens</Link></div>
       <section
         className="relative overflow-hidden rounded-[2rem] bg-[#0A3D27] bg-cover bg-center p-7 text-white md:p-10"
-        style={garden.coverPhotoUrl ? { backgroundImage: `linear-gradient(90deg, rgba(5,42,26,.92), rgba(5,42,26,.48)), url(${garden.coverPhotoUrl})` } : undefined}
+        style={heroImageUrl ? { backgroundImage: `linear-gradient(90deg, rgba(5,42,26,.92), rgba(5,42,26,.48)), url(${heroImageUrl})` } : undefined}
       >
+        {!heroImageUrl ? <Flower2 className="pointer-events-none absolute -bottom-14 right-6 h-64 w-64 text-white/5" /> : null}
         <div className="relative flex flex-wrap items-start justify-between gap-6">
           <div><p className="eyebrow !text-[#bde9ae]">{garden.visibilityName || "Personal garden"}</p><h1 className="mt-2 font-[family-name:var(--font-joti-one)] text-4xl md:text-6xl">{garden.name || "My garden"}</h1><p className="mt-4 max-w-2xl text-white/70">{garden.description || "A space for the plants you care about."}</p>{garden.locationName ? <p className="mt-4 flex items-center gap-2 font-bold text-[#c7ebba]"><MapPin className="h-4 w-4" />{garden.locationName}</p> : null}</div>
-          {garden.isOwner ? <div className="flex gap-2"><button type="button" onClick={() => setShowGardenForm(true)} className="auth-button bg-white !text-[#0A3D27]"><Edit3 className="h-4 w-4" /> Edit</button><button type="button" onClick={deleteGarden} className="auth-button border border-white/20 bg-white/10 !text-white"><Trash2 className="h-4 w-4" /></button></div> : null}
+          {garden.isOwner ? <div className="flex gap-2"><button type="button" aria-label={garden.coverPhotoUrl ? "Change cover photo" : "Add cover photo"} title={garden.coverPhotoUrl ? "Change cover photo" : "Add cover photo"} onClick={() => void openCoverForm()} className="grid h-10 w-10 place-items-center rounded-full bg-white text-[#0A3D27]"><Camera className="h-4 w-4" /></button><button type="button" onClick={() => setShowGardenForm(true)} className="auth-button bg-white !text-[#0A3D27]"><Edit3 className="h-4 w-4" /> Edit</button><button type="button" onClick={deleteGarden} className="auth-button border border-white/20 bg-white/10 !text-white"><Trash2 className="h-4 w-4" /></button></div> : null}
         </div>
       </section>
       {error ? <div className="mt-6"><ErrorState message={error} /></div> : null}
       {garden.isOwner ? (
-        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="mt-6 grid gap-3 sm:grid-cols-3">
           <button type="button" disabled={isSaving} onClick={() => void changeVisibility(1)} className={`detail-panel flex items-center gap-3 !p-4 text-left ${garden.visibilityId === 1 ? "ring-2 ring-[#12613f]" : ""}`}><Lock className="h-5 w-5 text-[#12613f]" /><span><strong className="block text-[#153f2f]">Private</strong><small className="text-[#637b70]">Only you</small></span></button>
           <button type="button" disabled={isSaving} onClick={() => void changeVisibility(2)} className={`detail-panel flex items-center gap-3 !p-4 text-left ${garden.visibilityId === 2 ? "ring-2 ring-[#12613f]" : ""}`}><Globe2 className="h-5 w-5 text-[#12613f]" /><span><strong className="block text-[#153f2f]">Public</strong><small className="text-[#637b70]">Anyone can view</small></span></button>
           <button type="button" onClick={() => setShowShareForm(true)} className={`detail-panel flex items-center gap-3 !p-4 text-left ${garden.visibilityId === 3 ? "ring-2 ring-[#12613f]" : ""}`}><Share2 className="h-5 w-5 text-[#12613f]" /><span><strong className="block text-[#153f2f]">Share</strong><small className="text-[#637b70]">Coming soon</small></span></button>
-          <button type="button" onClick={() => void openCoverForm()} className="detail-panel flex items-center gap-3 !p-4 text-left"><Camera className="h-5 w-5 text-[#12613f]" /><span><strong className="block text-[#153f2f]">Cover photo</strong><small className="text-[#637b70]">Upload or select</small></span></button>
         </section>
       ) : null}
 
