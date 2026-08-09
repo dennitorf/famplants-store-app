@@ -12,4 +12,8 @@ export interface GardenPlant {
   statusName?: string;
   healthStatusId?: number;
   healthStatusName?: string;
+  photoId?: string;
+  photoUrl?: string;
+  photoThumbnailUrl?: string;
+  photoCardUrl?: string;
 }

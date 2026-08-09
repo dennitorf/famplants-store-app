@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- media host is environment-configured blob storage */
 "use client";
 
 import Link from "next/link";
@@ -80,11 +81,9 @@ export default function GardensClient() {
       {error ? <div className="mb-5"><ErrorState message={error} /></div> : null}
       {gardens.length ? (
         <div className="catalog-grid">
-          {gardens.map((garden, index) => (
+          {gardens.map((garden) => (
             <article key={garden.id} className="catalog-card">
-              <div className={`h-36 p-5 ${index % 3 === 0 ? "bg-[#dcefd4]" : index % 3 === 1 ? "bg-[#f0e6c8]" : "bg-[#dcebe6]"}`}>
-                <Flower2 className="h-10 w-10 text-[#17633f]" />
-              </div>
+              {garden.coverCardUrl || garden.coverThumbnailUrl || garden.coverPhotoUrl ? <img src={garden.coverCardUrl || garden.coverThumbnailUrl || garden.coverPhotoUrl} alt={garden.name || "Garden"} className="h-36 w-full object-cover" /> : <div className="grid h-36 place-items-center bg-[#dcefd4]"><Flower2 className="h-10 w-10 text-[#17633f]" /></div>}
               <div className="p-5">
                 <p className="eyebrow">{garden.visibilityName || "Personal garden"}</p>
                 <h3 className="mt-1 text-2xl font-bold text-[#153f2f]">{garden.name || "My garden"}</h3>

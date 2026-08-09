@@ -25,6 +25,14 @@ export class CareRemindersService {
       .sort((left, right) => new Date(left.dueDate).getTime() - new Date(right.dueDate).getTime());
   }
 
+  public static async getForGarden(gardenId: string): Promise<CareReminder[]> {
+    const response = await apiClient.get<DataResponse<CareReminder>>(
+      `/ns-gardens/api/gardens/${gardenId}/care-reminders`,
+      { params: { Page: 1, PageSize: 100, OrderBy: "DueDate", Order: "asc" } },
+    );
+    return response.data.data.filter((item) => !item.isActed && !item.isCompleted);
+  }
+
   public static async complete(
     gardenId: string,
     gardenPlantId: string,
