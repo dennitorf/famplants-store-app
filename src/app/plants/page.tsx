@@ -8,19 +8,34 @@ import PlantCard from "@/app/components/common/plant-card";
 import { EmptyState, ErrorState } from "@/app/components/common/async-state";
 import StoreShell from "@/app/components/layout/store-shell";
 import PlantDiscoverySidebar from "@/app/components/plants/plant-discovery-sidebar";
+import CatalogSearch from "@/app/components/common/catalog-search";
 
 export const dynamic = "force-dynamic";
 
 interface PlantsPageProps {
-  searchParams: Promise<{ tag?: string }>;
+  searchParams: Promise<{ tag?: string; q?: string }>;
 }
 
 export default async function PlantsPage({ searchParams }: PlantsPageProps) {
-  const { tag: selectedTagSlug } = await searchParams;
-  return <PlantCatalog selectedTagSlug={selectedTagSlug} />;
+  const { tag: selectedTagSlug, q: searchQuery } = await searchParams;
+  return (
+    <PlantCatalog
+      selectedTagSlug={selectedTagSlug}
+      searchQuery={searchQuery}
+      catalogPath="/plants"
+    />
+  );
 }
 
-export async function PlantCatalog({ selectedTagSlug }: { selectedTagSlug?: string }) {
+export async function PlantCatalog({
+  selectedTagSlug,
+  searchQuery,
+  catalogPath = "/plants",
+}: {
+  selectedTagSlug?: string;
+  searchQuery?: string;
+  catalogPath?: string;
+}) {
   const [tagsResult, selectedTagResult] = await Promise.all([
     loadResult(TagsService.getAll(1, 100)),
     selectedTagSlug ? loadResult(TagsService.getBySlug(selectedTagSlug)) : Promise.resolve(null),
@@ -33,19 +48,30 @@ export async function PlantCatalog({ selectedTagSlug }: { selectedTagSlug?: stri
       ? await loadResult(PlantTagsService.getPlantsByTag(selectedTag.id))
       : { data: null, error: selectedTagResult?.error || "Plant tag not found" }
     : await loadResult(PlantsService.getAll(1, 60));
-  const plants = plantsResult.data === null
+  const catalogPlants = plantsResult.data === null
     ? []
     : Array.isArray(plantsResult.data)
       ? plantsResult.data
       : plantsResult.data.data;
-  const total = plantsResult.data === null
+  const normalizedSearch = searchQuery?.trim() ?? "";
+  const normalizedSearchLower = normalizedSearch.toLocaleLowerCase();
+  const plants = normalizedSearch
+    ? catalogPlants.filter((plant) =>
+        plant.name?.toLocaleLowerCase().includes(normalizedSearchLower),
+      )
+    : catalogPlants;
+  const total = normalizedSearch
+    ? plants.length
+    : plantsResult.data === null
     ? 0
     : Array.isArray(plantsResult.data)
       ? plantsResult.data.length
       : plantsResult.data.total;
-  const returnTo = selectedTagSlug
-    ? `/plants/tags/${encodeURIComponent(selectedTagSlug)}`
-    : "/plants";
+  const returnParams = new URLSearchParams();
+  if (normalizedSearch) returnParams.set("q", normalizedSearch);
+  if (catalogPath === "/plants" && selectedTagSlug) returnParams.set("tag", selectedTagSlug);
+  const returnQuery = returnParams.toString();
+  const returnTo = returnQuery ? `${catalogPath}?${returnQuery}` : catalogPath;
 
   return (
     <StoreShell>
@@ -71,6 +97,12 @@ export async function PlantCatalog({ selectedTagSlug }: { selectedTagSlug?: stri
             </div>
             <p className="text-sm text-[#637b70]">{total} {total === 1 ? "plant" : "plants"}</p>
           </div>
+          <CatalogSearch
+            action={catalogPath}
+            query={normalizedSearch}
+            placeholder="Search plants by name"
+            hiddenFields={catalogPath === "/plants" ? { tag: selectedTagSlug } : undefined}
+          />
           {plantsResult.error ? (
             <ErrorState message={plantsResult.error} />
           ) : plants.length ? (
@@ -81,8 +113,20 @@ export async function PlantCatalog({ selectedTagSlug }: { selectedTagSlug?: stri
             </div>
           ) : (
             <EmptyState
-              title={selectedTag ? `No plants tagged ${selectedTag.name || "this way"}` : "No public plants yet"}
-              description={selectedTag ? "Try another tag or browse all plants." : "Published plants will appear here."}
+              title={
+                normalizedSearch
+                  ? `No plants match “${normalizedSearch}”`
+                  : selectedTag
+                    ? `No plants tagged ${selectedTag.name || "this way"}`
+                    : "No public plants yet"
+              }
+              description={
+                normalizedSearch
+                  ? "Try a different plant name or clear the search."
+                  : selectedTag
+                    ? "Try another tag or browse all plants."
+                    : "Published plants will appear here."
+              }
             />
           )}
         </section>

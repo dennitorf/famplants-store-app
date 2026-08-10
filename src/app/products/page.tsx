@@ -9,24 +9,36 @@ import { ProductImagesService } from "@/utils/services/products/product-images-s
 import { ProductTagsService } from "@/utils/services/products/product-tags-service";
 import { ProductTagsCatalogService } from "@/utils/services/products/tags-service";
 import { loadResult } from "@/lib/result";
+import CatalogSearch from "@/app/components/common/catalog-search";
 
 export const dynamic = "force-dynamic";
 
 interface ProductsPageProps {
-  searchParams: Promise<{ category?: string; tag?: string }>;
+  searchParams: Promise<{ category?: string; tag?: string; q?: string }>;
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { category: selectedCategoryKey, tag: selectedTagSlug } = await searchParams;
-  return <ProductCatalog selectedCategoryKey={selectedCategoryKey} selectedTagSlug={selectedTagSlug} />;
+  const { category: selectedCategoryKey, tag: selectedTagSlug, q: searchQuery } = await searchParams;
+  return (
+    <ProductCatalog
+      selectedCategoryKey={selectedCategoryKey}
+      selectedTagSlug={selectedTagSlug}
+      searchQuery={searchQuery}
+      catalogPath="/products"
+    />
+  );
 }
 
 export async function ProductCatalog({
   selectedCategoryKey: requestedCategoryKey,
   selectedTagSlug,
+  searchQuery,
+  catalogPath = "/products",
 }: {
   selectedCategoryKey?: string;
   selectedTagSlug?: string;
+  searchQuery?: string;
+  catalogPath?: string;
 }) {
   const selectedCategoryKey = selectedTagSlug ? undefined : requestedCategoryKey;
   const [categoriesResult, tagsResult, selectedTagResult] = await Promise.all([
@@ -59,9 +71,16 @@ export async function ProductCatalog({
         catalogProducts.map((product) => ProductsService.getBySlug(product.slug).catch(() => product)),
       )
     : catalogProducts;
-  const products = selectedCategoryId
+  const categoryProducts = selectedCategoryId
     ? detailedProducts.filter((product) => product.categoryId === selectedCategoryId)
     : detailedProducts;
+  const normalizedSearch = searchQuery?.trim() ?? "";
+  const normalizedSearchLower = normalizedSearch.toLocaleLowerCase();
+  const products = normalizedSearch
+    ? categoryProducts.filter((product) =>
+        product.name.toLocaleLowerCase().includes(normalizedSearchLower),
+      )
+    : categoryProducts;
   const imageEntries = await Promise.all(
     products.map(async (product) => [
       product.id,
@@ -99,6 +118,16 @@ export async function ProductCatalog({
               {products.length} {products.length === 1 ? "product" : "products"}
             </p>
           </div>
+          <CatalogSearch
+            action={catalogPath}
+            query={normalizedSearch}
+            placeholder="Search products by name"
+            hiddenFields={
+              catalogPath === "/products"
+                ? { category: selectedCategoryKey, tag: selectedTagSlug }
+                : undefined
+            }
+          />
           {productsResult.error ? (
             <ErrorState message={productsResult.error} />
           ) : products.length ? (
@@ -110,14 +139,18 @@ export async function ProductCatalog({
           ) : (
             <EmptyState
               title={
-                selectedTag
+                normalizedSearch
+                  ? `No products match “${normalizedSearch}”`
+                  : selectedTag
                   ? `No products tagged ${selectedTag.name || "this way"}`
                   : selectedCategory
                     ? `No products in ${selectedCategory.name}`
                     : "The shop is being stocked"
               }
               description={
-                selectedTag || selectedCategory
+                normalizedSearch
+                  ? "Try a different product name or clear the search."
+                  : selectedTag || selectedCategory
                   ? "Try another option or browse all published products."
                   : "Published products will appear here soon."
               }
