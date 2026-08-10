@@ -17,6 +17,7 @@ import { GardenPlantsService } from "@/utils/services/gardens/garden-plants-serv
 import { GardensService } from "@/utils/services/gardens/gardens-service";
 import { CareRemindersService } from "@/utils/services/gardens/care-reminders-service";
 import { GardenCoversService } from "@/utils/services/gardens/garden-covers-service";
+import { ensureCurrentUserClient } from "@/utils/services/auth/current-user-client-service";
 import { PlantsService } from "@/utils/services/plants/plants-service";
 import { errorMessage } from "@/lib/text";
 
@@ -47,6 +48,7 @@ export default function GardenDetailClient({ gardenId }: { gardenId: string }) {
     setIsLoading(true);
     setError(undefined);
     try {
+      await ensureCurrentUserClient();
       const [gardenData, gardenPlantData, plantData, locationData, visibilityData, statusData, healthData, reminderData] = await Promise.all([
         GardensService.getById(gardenId),
         GardenPlantsService.getAll(gardenId),
@@ -230,7 +232,7 @@ export default function GardenDetailClient({ gardenId }: { gardenId: string }) {
       </section>
       <section className="mt-9">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Living collection</p><h2 className="mt-1 text-3xl font-bold text-[#153f2f]">Plants in this garden</h2></div>{garden.isOwner ? <button type="button" onClick={() => { setEditingPlant(undefined); setShowPlantForm(true); }} className="auth-button auth-button-primary"><Plus className="h-4 w-4" /> Add plant</button> : null}</div>
-        {gardenPlants.length ? <div className="catalog-grid">{gardenPlants.map((plant) => <GardenPlantCard key={plant.id} plant={plant} gardenId={gardenId} isOwner={garden.isOwner} onEdit={() => { setEditingPlant(plant); setShowPlantForm(true); }} onDelete={() => void removePlant(plant)} />)}</div> : <EmptyState title="This garden is ready to grow" description="Add a plant from the catalog or choose one using the button above." />}
+        {gardenPlants.length ? <div className="catalog-grid auto-rows-fr">{gardenPlants.map((plant) => <GardenPlantCard key={plant.id} plant={plant} gardenId={gardenId} isOwner={garden.isOwner} onEdit={() => { setEditingPlant(plant); setShowPlantForm(true); }} onDelete={() => void removePlant(plant)} />)}</div> : <EmptyState title="This garden is ready to grow" description="Add a plant from the catalog or choose one using the button above." />}
       </section>
 
       {showGardenForm ? <Modal title="Edit garden" onClose={() => setShowGardenForm(false)}><form onSubmit={saveGarden} className="grid gap-4"><div className="form-field"><label>Name</label><input name="name" required defaultValue={garden.name} className="form-input" /></div><div className="form-field"><label>Description</label><textarea name="description" defaultValue={garden.description} className="form-input min-h-24" /></div><div className="grid gap-4 sm:grid-cols-2"><div className="form-field"><label>Location</label><select name="locationId" defaultValue={garden.locationId} className="form-input"><option value="">Choose</option>{locations.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div><div className="form-field"><label>Visibility</label><select name="visibilityId" defaultValue={garden.visibilityId} className="form-input">{visibilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div></div><button disabled={isSaving} className="auth-button auth-button-primary">{isSaving ? "Saving…" : "Save changes"}</button></form></Modal> : null}
@@ -252,12 +254,14 @@ function GardenPlantCard({ plant, gardenId, isOwner, onEdit, onDelete }: {
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  return <article className="catalog-card overflow-hidden">
-    {plant.photoCardUrl || plant.photoThumbnailUrl || plant.photoUrl ? <img src={plant.photoCardUrl || plant.photoThumbnailUrl || plant.photoUrl} alt={plant.nickName || plant.plantName || "Garden plant"} className="aspect-[4/3] w-full object-cover" /> : <div className="grid aspect-[4/3] place-items-center bg-[#e4f4dc] text-[#12613f]"><Flower2 className="h-12 w-12" /></div>}
-    <div className="p-5">
+  return <article className="catalog-card flex h-full flex-col overflow-hidden">
+    <div className="catalog-image shrink-0">
+      {plant.photoCardUrl || plant.photoThumbnailUrl || plant.photoUrl ? <img src={plant.photoCardUrl || plant.photoThumbnailUrl || plant.photoUrl} alt={plant.nickName || plant.plantName || "Garden plant"} /> : <div className="grid h-full place-items-center bg-[#e4f4dc] text-[#12613f]"><Flower2 className="h-12 w-12" /></div>}
+    </div>
+    <div className="flex flex-1 flex-col p-5">
       <div className="flex items-start justify-between gap-3"><div><h3 className="text-xl font-bold text-[#153f2f]">{plant.nickName || plant.plantName || "Garden plant"}</h3>{plant.nickName && plant.plantName ? <p className="text-sm italic text-[#637b70]">{plant.plantName}</p> : null}</div>{isOwner ? <div className="flex gap-1"><button type="button" onClick={onEdit} className="grid h-9 w-9 place-items-center rounded-full border"><Edit3 className="h-4 w-4" /></button><button type="button" onClick={onDelete} className="grid h-9 w-9 place-items-center rounded-full border text-red-700"><Trash2 className="h-4 w-4" /></button></div> : null}</div>
       <div className="mt-4 grid gap-2 text-sm text-[#557064]">{plant.locationName ? <p className="flex items-center gap-2"><MapPin className="h-4 w-4" />{plant.locationName}</p> : null}{plant.healthStatusName ? <p className="flex items-center gap-2"><HeartPulse className="h-4 w-4" />{plant.healthStatusName}</p> : null}{plant.acquiredDate ? <p className="flex items-center gap-2"><CalendarDays className="h-4 w-4" />Added {new Date(plant.acquiredDate).toLocaleDateString()}</p> : null}</div>
-      <Link href={`/gardens/${gardenId}/plants/${plant.id}`} className="mt-4 inline-block text-sm font-bold text-[#12613f]">View plant and care reminders</Link>
+      <Link href={`/gardens/${gardenId}/plants/${plant.id}`} className="mt-auto inline-block pt-4 text-sm font-bold text-[#12613f]">View plant and care reminders</Link>
     </div>
   </article>;
 }

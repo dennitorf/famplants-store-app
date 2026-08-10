@@ -32,6 +32,7 @@ import { CareRemindersService } from "@/utils/services/gardens/care-reminders-se
 import { GardenPlantsService } from "@/utils/services/gardens/garden-plants-service";
 import { GardenPlantPhotosService } from "@/utils/services/gardens/garden-plant-photos-service";
 import { PlantsService } from "@/utils/services/plants/plants-service";
+import { ensureCurrentUserClient } from "@/utils/services/auth/current-user-client-service";
 
 export default function GardenPlantDetailClient({
   gardenId,
@@ -57,6 +58,7 @@ export default function GardenPlantDetailClient({
     setIsLoading(true);
     setError(undefined);
     try {
+      await ensureCurrentUserClient();
       const plant = await GardenPlantsService.getById(gardenId, gardenPlantId);
       const [catalog, upcoming, plantPhotos] = await Promise.all([
         PlantsService.getById(plant.plantId).catch(() => undefined),

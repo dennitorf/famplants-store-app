@@ -10,6 +10,7 @@ import type { LookupOption } from "@/models/common/lookup-option";
 import type { Garden } from "@/models/gardens/garden";
 import { GardenLookupsService } from "@/utils/services/gardens/garden-lookups-service";
 import { GardensService } from "@/utils/services/gardens/gardens-service";
+import { ensureCurrentUserClient } from "@/utils/services/auth/current-user-client-service";
 import { errorMessage } from "@/lib/text";
 
 export default function GardensClient() {
@@ -27,6 +28,7 @@ export default function GardensClient() {
     setIsLoading(true);
     setError(undefined);
     try {
+      await ensureCurrentUserClient();
       const [gardenData, locationData, visibilityData] = await Promise.all([
         GardensService.getAll(),
         GardenLookupsService.getLocations(),
