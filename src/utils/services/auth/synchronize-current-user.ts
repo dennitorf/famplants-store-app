@@ -37,7 +37,10 @@ export async function synchronizeCurrentUser(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to synchronize current user: ${response.status}`);
+    const details = await response.text();
+    throw new Error(
+      `Failed to synchronize current user (${response.status})${details ? `: ${details}` : ""}`,
+    );
   }
 
   return (await response.json()) as FamPlantsUserDto;

@@ -41,9 +41,6 @@ export const auth0 = new Auth0Client({
         "Failed to register the authenticated user during the Auth0 callback",
         synchronizationError,
       );
-      return new NextResponse("Failed to register the authenticated user.", {
-        status: 502,
-      });
     }
 
     if (!context.appBaseUrl) {
