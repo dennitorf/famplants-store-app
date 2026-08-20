@@ -1,4 +1,6 @@
 import { Auth0Client } from "@auth0/nextjs-auth0/server";
+import { NextResponse } from "next/server";
+import { synchronizeCurrentUser } from "@/utils/services/auth/synchronize-current-user";
 
 const developmentAuth0 = {
   domain: "dev-dcpilwgmwxkfk7kz.us.auth0.com",
@@ -21,5 +23,37 @@ export const auth0 = new Auth0Client({
   authorizationParameters: {
     scope: "openid profile email offline_access",
     audience: auth0Audience,
+  },
+  onCallback: async (error, context, session) => {
+    if (error) {
+      return new NextResponse(error.message, { status: 500 });
+    }
+    if (!session) {
+      return new NextResponse("Authentication did not create a session.", {
+        status: 500,
+      });
+    }
+
+    try {
+      await synchronizeCurrentUser(session.tokenSet.accessToken, session.user);
+    } catch (synchronizationError) {
+      console.error(
+        "Failed to register the authenticated user during the Auth0 callback",
+        synchronizationError,
+      );
+      return new NextResponse("Failed to register the authenticated user.", {
+        status: 502,
+      });
+    }
+
+    if (!context.appBaseUrl) {
+      return new NextResponse("Unable to resolve the application URL.", {
+        status: 500,
+      });
+    }
+
+    return NextResponse.redirect(
+      new URL(context.returnTo || "/", context.appBaseUrl),
+    );
   },
 });
