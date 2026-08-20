@@ -1,7 +1,7 @@
 import { apiBaseUrl } from "@/lib/config";
 import { getFamPlantsApiAccessToken } from "@/lib/auth/access-token";
 import type { DataResponse } from "@/models/data/data-response";
-import type { CreateOrderRequest, Order, OrderListItem } from "@/models/orders/order";
+import type { CreateOrderRequest, DiscountCartItem, DiscountValidationResult, Order, OrderListItem } from "@/models/orders/order";
 
 export class OrdersApiError extends Error {
   public constructor(public readonly status: number, message: string) {
@@ -53,4 +53,20 @@ export class OrdersService {
     }
     return await response.json() as Order;
   }
+
+  public static async validateDiscount(code: string, items: DiscountCartItem[]): Promise<DiscountValidationResult> {
+    const token = await getFamPlantsApiAccessToken();
+    const response = await fetch(`${apiBaseUrl}/ns-orders/api/discounts/validate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ code, items }),
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      const body = await response.text();
+      throw new OrdersApiError(response.status, body || "The discount could not be validated.");
+    }
+    return await response.json() as DiscountValidationResult;
+  }
+
 }
