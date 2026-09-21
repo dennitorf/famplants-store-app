@@ -24,7 +24,9 @@ export default function PlantDiscoverySidebar({
   selectedSection,
   selectedTagSlug,
 }: PlantDiscoverySidebarProps) {
-  const orderedTags = [...tags].sort((left, right) => left.order - right.order);
+  const orderedTags = tags
+    .filter((tag) => tag.isMenuTag)
+    .sort((left, right) => left.order - right.order);
 
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
