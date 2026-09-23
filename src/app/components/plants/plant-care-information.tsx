@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { BookOpen, LocateFixed, MapPin, ThumbsUp } from "lucide-react";
+import { FormEvent, type MouseEvent, useEffect, useId, useMemo, useState } from "react";
+import { ArrowUp, BookOpen, ChevronRight, List, LocateFixed, MapPin, ThumbsUp } from "lucide-react";
 import type { CareGuide } from "@/models/plants/care-guide";
 import type { CareGuideApplicableHardinessZone } from "@/models/plants/care-guide-applicable-hardiness-zone";
 import type { CareGuideApplicableType } from "@/models/plants/care-guide-applicable-type";
@@ -27,6 +27,7 @@ interface PostalCodeResult {
 }
 
 export default function PlantCareInformation({ plantId }: { plantId: string }) {
+  const topicsId = useId();
   const [guides, setGuides] = useState<CareGuide[]>([]);
   const [metadata, setMetadata] = useState<Record<string, GuideMetadata>>({});
   const [zipCode, setZipCode] = useState("");
@@ -242,9 +243,58 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
         : !selection.zoneGuides.length ? <CareStatus message={`No care guides are available for hardiness zone ${hardinessZone?.code ?? "this location"}.`} />
           : selection.availableTypes.length > 1 && !selection.selectedTypeId ? <CareStatus message="Select a care guide type to continue." />
             : selection.matchedGuides.length > 1 && !selection.selectedGuideId ? <CareStatus message="Select a care guide to see its recommendations." />
-              : selectedGuide ? <div className="mt-7"><div className="rounded-[2rem] bg-[#f3faef] p-6"><h3 className="text-xl font-bold text-[#153f2f]">{selectedGuide.name || "Care guide"}</h3>{plainText(selectedGuide.description) ? <RichHtml content={selectedGuide.description ?? ""} className="mt-3" /> : null}</div>{isLoadingInformation ? <CareStatus message="Loading recommendations..." /> : visibleInformation.length ? <div className="mt-5 space-y-4">{visibleInformation.map((item) => <article key={item.id} className="rounded-[2rem] border border-emerald-950/10 bg-white p-6"><p className="eyebrow">{item.category?.name || "Care tip"}</p><RichHtml content={item.content ?? ""} className="mt-3" /><button type="button" disabled={ratedIds.has(item.id) || ratingIds.has(item.id)} onClick={() => void rate(item)} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#12613f] disabled:opacity-60"><ThumbsUp className="h-4 w-4" />{ratedIds.has(item.id) ? "Marked useful" : ratingIds.has(item.id) ? "Saving..." : "Useful"}<span className="font-normal text-[#71877c]">({item.usefulnessRateCount})</span></button></article>)}</div> : <CareStatus message="No care information is available for this guide yet." />}{ratingError ? <p role="alert" className="mt-4 text-sm font-bold text-red-700">{ratingError}</p> : null}</div> : null}
+              : selectedGuide ? (
+                <div className="mt-7">
+                  <div className="rounded-[2rem] bg-[#f3faef] p-6">
+                    <h3 className="text-xl font-bold text-[#153f2f]">{selectedGuide.name || "Care guide"}</h3>
+                    {plainText(selectedGuide.description) ? <RichHtml content={selectedGuide.description ?? ""} className="mt-3" /> : null}
+                  </div>
+                  {isLoadingInformation ? <CareStatus message="Loading recommendations..." /> : visibleInformation.length ? (
+                    <div className="mt-5 space-y-4">
+                      <nav id={topicsId} aria-labelledby={`${topicsId}-heading`} tabIndex={-1} className="scroll-mt-28 rounded-[2rem] border border-emerald-950/10 bg-[#f3faef] p-5 sm:p-6 focus-visible:outline-2 focus-visible:outline-[#12613f]">
+                        <h4 id={`${topicsId}-heading`} className="flex items-center gap-2 text-lg font-bold text-[#153f2f]"><List className="h-5 w-5" aria-hidden="true" />Jump to a topic</h4>
+                        <p className="mt-1 text-sm text-[#557064]">Find the guidance you need in this care guide.</p>
+                        <ol className="mt-4 grid gap-2 sm:grid-cols-2">
+                          {visibleInformation.map((item, index) => (
+                            <li key={item.id}>
+                              <a href={`#${topicsId}-${item.id}`} onClick={(event) => jumpToTopic(event, `${topicsId}-${item.id}`)} className="flex min-h-12 items-center gap-3 rounded-2xl border border-emerald-950/10 bg-white px-4 py-3 text-sm font-bold text-[#24543e] transition-colors hover:bg-[#e4f4dc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#12613f]">
+                                <span className="text-xs text-[#637b70]" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                                <span className="min-w-0 flex-1 break-words">{item.category?.name || "Care tip"}</span>
+                                <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                              </a>
+                            </li>
+                          ))}
+                        </ol>
+                      </nav>
+                      {visibleInformation.map((item) => (
+                        <article key={item.id} id={`${topicsId}-${item.id}`} tabIndex={-1} aria-labelledby={`${topicsId}-${item.id}-heading`} className="scroll-mt-28 rounded-[2rem] border border-emerald-950/10 bg-white p-6 focus-visible:outline-2 focus-visible:outline-[#12613f]">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <h4 id={`${topicsId}-${item.id}-heading`} className="eyebrow">{item.category?.name || "Care tip"}</h4>
+                            <a href={`#${topicsId}`} onClick={(event) => jumpToTopic(event, topicsId)} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-[#12613f] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-[#12613f]"><ArrowUp className="h-4 w-4" aria-hidden="true" />Back to topics</a>
+                          </div>
+                          <RichHtml content={item.content ?? ""} className="mt-3" />
+                          <button type="button" disabled={ratedIds.has(item.id) || ratingIds.has(item.id)} onClick={() => void rate(item)} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#12613f] disabled:opacity-60"><ThumbsUp className="h-4 w-4" />{ratedIds.has(item.id) ? "Marked useful" : ratingIds.has(item.id) ? "Saving..." : "Useful"}<span className="font-normal text-[#71877c]">({item.usefulnessRateCount})</span></button>
+                        </article>
+                      ))}
+                    </div>
+                  ) : <CareStatus message="No care information is available for this guide yet." />}
+                  {ratingError ? <p role="alert" className="mt-4 text-sm font-bold text-red-700">{ratingError}</p> : null}
+                </div>
+              ) : null}
     </section>
   );
+}
+
+function jumpToTopic(event: MouseEvent<HTMLAnchorElement>, id: string) {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const target = document.getElementById(id);
+  if (!target) return;
+  event.preventDefault();
+  target.focus({ preventScroll: true });
+  target.scrollIntoView({
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    block: "start",
+  });
 }
 
 function Select({ label, value, onChange, options, placeholder }: { label: string; value: string; onChange: (value: string) => void; options: Array<{ value: string; label: string }>; placeholder: string }) {
