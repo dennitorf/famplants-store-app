@@ -43,6 +43,7 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLocating, setIsLocating] = useState(false);
   const [isLoadingInformation, setIsLoadingInformation] = useState(false);
+  const [informationError, setInformationError] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
@@ -144,8 +145,10 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
   useEffect(() => {
     let active = true;
     async function loadInformation() {
+      setInformationError(false);
+      setInformation([]);
       if (!selection.selectedGuideId) {
-        setInformation([]);
+        setIsLoadingInformation(false);
         return;
       }
       setIsLoadingInformation(true);
@@ -153,7 +156,10 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
         const items = await CareInformationService.getAll(selection.selectedGuideId);
         if (active) setInformation(sortInformation(items));
       } catch {
-        if (active) setInformation([]);
+        if (active) {
+          setInformation([]);
+          setInformationError(true);
+        }
       } finally {
         if (active) setIsLoadingInformation(false);
       }
@@ -249,7 +255,7 @@ export default function PlantCareInformation({ plantId }: { plantId: string }) {
                     <h3 className="text-xl font-bold text-[#153f2f]">{selectedGuide.name || "Care guide"}</h3>
                     {plainText(selectedGuide.description) ? <RichHtml content={selectedGuide.description ?? ""} className="mt-3" /> : null}
                   </div>
-                  {isLoadingInformation ? <CareStatus message="Loading recommendations..." /> : visibleInformation.length ? (
+                  {isLoadingInformation ? <CareStatus message="Loading recommendations..." /> : informationError ? <CareStatus message="Care recommendations could not be loaded. Please try again shortly." /> : visibleInformation.length ? (
                     <div className="mt-5 space-y-4">
                       <nav id={topicsId} aria-labelledby={`${topicsId}-heading`} tabIndex={-1} className="scroll-mt-28 rounded-[2rem] border border-emerald-950/10 bg-[#f3faef] p-5 sm:p-6 focus-visible:outline-2 focus-visible:outline-[#12613f]">
                         <h4 id={`${topicsId}-heading`} className="flex items-center gap-2 text-lg font-bold text-[#153f2f]"><List className="h-5 w-5" aria-hidden="true" />Jump to a topic</h4>

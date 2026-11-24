@@ -1,74 +1,21 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import Link from "next/link";
-
-import Footer from "../components/layout/footer";
-import Header from "../components/layout/header";
-import SuperHeader from "../components/layout/super-header";
+import StoreShell from "@/app/components/layout/store-shell";
+import PageHero from "@/app/components/common/page-hero";
+import { ErrorState } from "@/app/components/common/async-state";
+import { loadResult } from "@/lib/result";
+import { PlantsService } from "@/utils/services/plants/plants-service";
 import PlantCareContent from "./plant-care-content";
-import indexData from "@/utils/data/index.json";
 
-type IndexPlant = {
-  slug: string;
-  name: string;
-  jsonPath: string;
-  coverImage: string | null;
-  imageCount: number;
-  sectionCount: number;
-};
-
-type PlantDetail = {
-  meta?: {
-    title?: string;
-  };
-  plant?: {
-    name?: string;
-  };
-};
-
-type PlantCard = {
-  slug: string;
-  name: string;
-  coverImage: string | null;
-  imageCount: number;
-  sectionCount: number;
-};
-
-async function getPlantCards(): Promise<PlantCard[]> {
-  const plants = indexData as IndexPlant[];
-  const dataRoot = path.join(process.cwd(), "src", "utils", "data");
-
-  return Promise.all(
-    plants.map(async (plant) => {
-      const detailPath = path.join(dataRoot, plant.jsonPath);
-      const detailRaw = await readFile(detailPath, "utf8");
-      const detail = JSON.parse(detailRaw) as PlantDetail;
-      const detailName = detail.plant?.name ?? detail.meta?.title ?? plant.name;
-
-      return {
-        slug: plant.slug,
-        name: detailName,
-        coverImage: plant.coverImage,
-        imageCount: plant.imageCount,
-        sectionCount: plant.sectionCount,
-      };
-    })
-  );
-}
+export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const plants = await getPlantCards();
-
+  // An empty search loads every public catalog page, keeping directory search complete.
+  const result = await loadResult(PlantsService.search(""));
   return (
-    <main className="flex min-h-screen flex-col">
-      <SuperHeader />
-      <Header />
-
-      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <PlantCareContent plants={plants} />
+    <StoreShell>
+      <PageHero eyebrow="Grow with confidence" title="Plant Care Guides" description="Find your plant and explore care guidance for your growing conditions." />
+      <section className="pb-12">
+        {result.data ? <PlantCareContent plants={result.data.data} /> : <ErrorState message="The plant catalog is unavailable. Please try again shortly." />}
       </section>
-
-      <Footer />
-    </main>
+    </StoreShell>
   );
 }
