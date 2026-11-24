@@ -1,42 +1,58 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   LogIn,
   LogOut,
   Menu,
-  Sprout,
+  Search,
   UserRound,
 } from "lucide-react";
 import { auth0 } from "@/lib/auth0";
 import CartLink from "@/app/components/cart/cart-link";
+import { TagsService } from "@/utils/services/plants/tags-service";
+import { loadResult } from "@/lib/result";
 
-const links = [
-  { href: "/plants", label: "Plants" },
+const utilityLinks = [
+  { href: "/plants", label: "All Plants" },
   { href: "/collections", label: "Collections" },
   { href: "/products", label: "Shop" },
   { href: "/gardens", label: "Gardens" },
 ];
 
 export default async function SiteHeader() {
-  const session = await auth0.getSession();
+  const [session, tagsResult] = await Promise.all([
+    auth0.getSession(),
+    loadResult(TagsService.getMenuTags()),
+  ]);
   const user = session?.user;
+  const links = [
+    ...(tagsResult.data ?? []).map((tag) => ({
+      href: `/plants/tags/${encodeURIComponent(tag.slug)}`,
+      label: tag.name || "Plant tag",
+    })),
+    ...utilityLinks,
+  ];
 
   return (
     <header className="sticky top-0 z-50 -mx-3 border-b border-emerald-950/10 bg-[#fbfdf8]/95 px-3 backdrop-blur sm:-mx-4 sm:px-4 md:-mx-6 md:px-6">
-      <div className="mx-auto flex h-18 max-w-[1392px] items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 text-[#0A3D27]">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#dff5d8]">
-            <Sprout className="h-6 w-6" />
-          </span>
-          <span className="font-[family-name:var(--font-joti-one)] text-xl">FamPlants</span>
+      <div className="mx-auto flex min-h-18 max-w-[1392px] flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2">
+        <Link href="/" className="flex shrink-0 items-center gap-2 text-[#0A3D27]" aria-label="Fam Plants home">
+          <Image
+            src="/brand/fam-plants-logo.svg"
+            alt=""
+            width={48}
+            height={48}
+            className="h-12 w-12"
+          />
+          <span className="hidden font-[family-name:var(--font-joti-one)] text-xl min-[400px]:inline">FamPlants</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href} className="rounded-full px-4 py-2 text-sm font-bold text-[#254d3d] transition-colors hover:bg-[#eaf6e5]">
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <form action="/plants" method="get" role="search" aria-label="Search plant catalog" className="order-last flex w-full items-center rounded-full border border-emerald-950/15 bg-white focus-within:ring-2 focus-within:ring-[#15bc65] md:order-none md:mx-4 md:w-auto md:max-w-xl md:flex-1">
+          <input type="search" name="q" aria-label="Search plants" placeholder="Search plants by name…" className="h-11 min-w-0 flex-1 rounded-l-full bg-transparent pl-5 pr-2 text-sm text-[#153f2f] outline-none" />
+          <button type="submit" aria-label="Search" className="m-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0A3D27] text-white transition-colors hover:bg-[#256044] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A3D27]">
+            <Search aria-hidden="true" className="h-4 w-4" />
+          </button>
+        </form>
 
         <div className="hidden items-center gap-3 md:flex">
           <CartLink />
@@ -109,6 +125,13 @@ export default async function SiteHeader() {
           </details>
         </div>
       </div>
+      <nav className="mx-auto hidden max-w-[1392px] flex-wrap items-center gap-1 border-t border-emerald-950/10 py-2 md:flex" aria-label="Main navigation">
+        {links.map((link) => (
+          <Link key={link.href} href={link.href} className="rounded-full px-4 py-2 text-sm font-bold text-[#254d3d] transition-colors hover:bg-[#eaf6e5]">
+            {link.label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

@@ -1,36 +1,29 @@
 import Link from "next/link";
+import DailyHeaderImage from "@/app/components/home/daily-header-image";
+import { getDailyHeaderIndex } from "@/lib/daily-header";
 
 export default function Header() {
-    return (
-        <section
-            className="relative mt-2 min-h-[300px] overflow-hidden rounded-xl bg-cover bg-center"
-            style={{ backgroundImage: "url('/img/BANNER1.png')" }}
-        >
-            <div className="absolute inset-0 bg-black/25" />
-
-            <div className="relative flex h-full min-h-[300px] flex-col justify-start gap-4 p-6 md:p-8">
-                <h1 className="max-w-xl font-[family-name:var(--font-joti-one)] text-3xl font-bold text-white md:text-4xl">
-                    Grow your family garden today
-                </h1>
-                <p className="max-w-lg text-sm text-white/90 md:text-base">
-                    Discover healthy plants and bring nature into your home with FamPlants.
-                </p>
-
-                <div className="flex flex-wrap gap-3">
-                    <Link
-                        href="/products"
-                        className="rounded-md bg-[#0A3D27] px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
-                    >
-                        Shop now
-                    </Link>
-                    <Link
-                        href="/plants"
-                        className="rounded-md border border-white/60 bg-transparent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-                    >
-                        Explore plants
-                    </Link>
-                </div>
-            </div>
-        </section>
-    );
+  return (
+    <section className="mt-2 overflow-hidden rounded-2xl bg-[#eef8e9]">
+      <DailyHeaderImage initialIndex={getDailyHeaderIndex(new Date())} />
+      <div className="flex flex-col gap-5 p-6 md:flex-row md:items-center md:justify-between md:p-8">
+        <div>
+          <h1 className="font-[family-name:var(--font-joti-one)] text-3xl text-[#0A3D27] md:text-4xl">
+            Grow your family garden today
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-[#456756] md:text-base">
+            Discover healthy plants and bring nature into your home with FamPlants.
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-3">
+          <Link href="/products" className="rounded-full bg-[#0A3D27] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#256044]">
+            Shop now
+          </Link>
+          <Link href="/plants" className="rounded-full border border-[#0A3D27]/25 px-5 py-3 text-sm font-semibold text-[#0A3D27] transition-colors hover:bg-[#dff2d7]">
+            Explore plants
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
 }

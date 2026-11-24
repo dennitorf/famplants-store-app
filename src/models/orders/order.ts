@@ -98,3 +98,42 @@ export interface DiscountValidationResult {
   lines: DiscountLineResult[];
   eligibleProductLines: DiscountLineResult[];
 }
+
+export type PaymentStatus =
+  | "RequiresPaymentMethod"
+  | "RequiresConfirmation"
+  | "RequiresAction"
+  | "Processing"
+  | "Succeeded"
+  | "Failed"
+  | "Cancelled"
+  | "PartiallyRefunded"
+  | "Refunded";
+
+export interface OrderPayment {
+  id: string;
+  orderId: string;
+  provider: string;
+  status: PaymentStatus;
+  currencyCode: string;
+  subtotalAmount: number;
+  discountAmount: number;
+  shippingAmount: number;
+  taxAmount: number;
+  totalAmount: number;
+  amountPaid: number;
+  amountRefunded: number;
+  refundableAmount: number;
+  failureCode?: string;
+  failureMessage?: string;
+  receiptUrl?: string;
+  createdDate: string;
+  modifiedDate: string;
+  paidDate?: string;
+  cancelledDate?: string;
+}
+
+export interface PaymentSession {
+  clientSecret: string;
+  payment: OrderPayment;
+}

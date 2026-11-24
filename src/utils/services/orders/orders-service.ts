@@ -1,7 +1,7 @@
 import { apiBaseUrl } from "@/lib/config";
 import { getFamPlantsApiAccessToken } from "@/lib/auth/access-token";
 import type { DataResponse } from "@/models/data/data-response";
-import type { CreateOrderRequest, DiscountCartItem, DiscountValidationResult, Order, OrderListItem } from "@/models/orders/order";
+import type { CreateOrderRequest, DiscountCartItem, DiscountValidationResult, Order, OrderListItem, OrderPayment, PaymentSession } from "@/models/orders/order";
 
 export class OrdersApiError extends Error {
   public constructor(public readonly status: number, message: string) {
@@ -67,6 +67,59 @@ export class OrdersService {
       throw new OrdersApiError(response.status, body || "The discount could not be validated.");
     }
     return await response.json() as DiscountValidationResult;
+  }
+
+  public static async createPaymentSession(
+    userId: string,
+    orderId: string,
+    idempotencyKey: string,
+  ): Promise<PaymentSession> {
+    const token = await getFamPlantsApiAccessToken();
+    const response = await fetch(
+      `${apiBaseUrl}/ns-orders/api/users/${encodeURIComponent(userId)}/orders/${encodeURIComponent(orderId)}/payment-session`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ idempotencyKey }),
+        cache: "no-store",
+      },
+    );
+    if (!response.ok) {
+      const body = await response.text();
+      throw new OrdersApiError(response.status, body || `Failed to create payment session: ${response.status}`);
+    }
+    return await response.json() as PaymentSession;
+  }
+
+  public static async getPayment(userId: string, orderId: string): Promise<OrderPayment> {
+    const token = await getFamPlantsApiAccessToken();
+    const response = await fetch(
+      `${apiBaseUrl}/ns-orders/api/users/${encodeURIComponent(userId)}/orders/${encodeURIComponent(orderId)}/payment`,
+      { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" },
+    );
+    if (!response.ok) {
+      const body = await response.text();
+      throw new OrdersApiError(response.status, body || `Failed to load payment: ${response.status}`);
+    }
+    return await response.json() as OrderPayment;
+  }
+
+  public static async cancelForUser(userId: string, orderId: string, reason: string): Promise<Order> {
+    const token = await getFamPlantsApiAccessToken();
+    const response = await fetch(
+      `${apiBaseUrl}/ns-orders/api/users/${encodeURIComponent(userId)}/orders/${encodeURIComponent(orderId)}/cancel`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ reason }),
+        cache: "no-store",
+      },
+    );
+    if (!response.ok) {
+      const body = await response.text();
+      throw new OrdersApiError(response.status, body || `Failed to cancel order: ${response.status}`);
+    }
+    return await response.json() as Order;
   }
 
 }

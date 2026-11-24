@@ -47,7 +47,9 @@ export async function PlantCatalog({
     ? selectedTag
       ? await loadResult(PlantTagsService.getPlantsByTag(selectedTag.id))
       : { data: null, error: selectedTagResult?.error || "Plant tag not found" }
-    : await loadResult(PlantsService.getAll(1, 60));
+    : await loadResult(searchQuery?.trim()
+        ? PlantsService.search(searchQuery)
+        : PlantsService.getAll(1, 60));
   const catalogPlants = plantsResult.data === null
     ? []
     : Array.isArray(plantsResult.data)

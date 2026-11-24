@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Droplets, Leaf, MapPin, Sprout, Sun, ThermometerSun } from "lucide-react";
+import { ArrowLeft, CalendarDays, Flower2, Droplets, Leaf, MapPin, Sprout, Sun, ThermometerSun } from "lucide-react";
 import StoreShell from "@/app/components/layout/store-shell";
 import { ErrorState } from "@/app/components/common/async-state";
 import { PlantsService } from "@/utils/services/plants/plants-service";
@@ -78,6 +78,9 @@ export default async function PlantDetailPage({ params, searchParams }: PlantDet
       { label: "Water", value: plant.wateringFrequency, icon: Droplets },
       { label: "Temperature", value: plant.temperature, icon: ThermometerSun },
       { label: "Climate", value: plant.climate, icon: MapPin },
+      { label: "Blooming seasons", value: plant.bloomingSeason, icon: CalendarDays },
+      { label: "Leaf colors", value: plant.leafColor, icon: Leaf },
+      { label: "Flower colors", value: plant.flowerColor, icon: Flower2 },
       { label: "Soil", value: plant.soilType, icon: Sprout },
       { label: "Habit", value: plant.plantHabit, icon: Leaf },
     ].filter((trait) => trait.value);

@@ -6,6 +6,7 @@ import { ErrorState } from "@/app/components/common/async-state";
 import { auth0 } from "@/lib/auth0";
 import { loadResult } from "@/lib/result";
 import { ensureCurrentUser } from "@/utils/services/auth/current-user-service";
+import NotificationPreferencesCard from "./notification-preferences-card";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,7 @@ export default async function ProfilePage() {
               <ProfileRow icon={<Sprout className="h-5 w-5" />} label="Authentication" value={user.authProvider || "Auth0"} />
             </dl>
           </article>
+          <NotificationPreferencesCard />
         </div>
 
         <aside className="space-y-6">

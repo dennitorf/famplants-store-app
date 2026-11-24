@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import type { CreateOrderRequest, DiscountValidationResult, Order, OrderAddress } from "@/models/orders/order";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import type { CreateOrderRequest, DiscountValidationResult, Order, OrderAddress, OrderPayment, PaymentSession } from "@/models/orders/order";
 import type { RootState } from "@/store";
 import { cartActions } from "@/store/cart-slice";
+import PaymentStep from "./payment-step";
+
+const PENDING_ORDER_KEY = "famplants.pendingPaymentOrderId";
+const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim();
+const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 
 export default function CheckoutForm({ email, name }: { email: string; name: string }) {
   const router = useRouter();
@@ -14,6 +21,7 @@ export default function CheckoutForm({ email, name }: { email: string; name: str
   const { items, hydrated } = useSelector((state: RootState) => state.cart);
   const subtotal = items.reduce((total, item) => total + item.unitPrice * item.quantity, 0);
   const idempotencyKey = useRef<string | null>(null);
+  const resumeStarted = useRef(false);
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -21,6 +29,21 @@ export default function CheckoutForm({ email, name }: { email: string; name: str
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountValidationResult | null>(null);
   const [discountMessage, setDiscountMessage] = useState<string | null>(null);
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  const [paymentSession, setPaymentSession] = useState<PaymentSession | null>(null);
+  const [isResuming, setIsResuming] = useState(false);
+
+  useEffect(() => {
+    if (!hydrated || resumeStarted.current) return;
+    resumeStarted.current = true;
+    const orderId = window.localStorage.getItem(PENDING_ORDER_KEY);
+    if (!orderId) return;
+    setPendingOrderId(orderId);
+    setIsResuming(true);
+    void resumePayment(orderId).finally(() => setIsResuming(false));
+    // Resume exactly once after Redux restores the persisted cart.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
 
   async function applyDiscount() {
     const code = discountInput.trim();
@@ -90,16 +113,98 @@ export default function CheckoutForm({ email, name }: { email: string; name: str
           : "The order could not be created.");
       }
 
-      dispatch(cartActions.clearCart());
-      router.push(`/orders/${(result as Order).id}?placed=1`);
+      const order = result as Order;
+      window.localStorage.setItem(PENDING_ORDER_KEY, order.id);
+      setPendingOrderId(order.id);
+      await createPaymentSession(order.id);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "The order could not be created.");
       setIsSubmitting(false);
     }
   }
 
+  async function resumePayment(orderId: string) {
+    try {
+      const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}/payment`, { cache: "no-store" });
+      if (response.ok) {
+        const payment = await response.json() as OrderPayment;
+        if (payment.status === "Succeeded") {
+          completePayment(orderId);
+          return;
+        }
+        if (payment.status === "Cancelled" || payment.status === "Refunded") {
+          resetPendingOrder();
+          return;
+        }
+      }
+      await createPaymentSession(orderId);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Your pending payment could not be resumed.");
+    }
+  }
+
+  async function createPaymentSession(orderId: string) {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}/payment-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idempotencyKey: window.crypto.randomUUID() }),
+      });
+      const result = await response.json() as PaymentSession | { message?: string };
+      if (!response.ok) {
+        throw new Error("message" in result && result.message ? readableApiError(result.message) : "The payment session could not be created.");
+      }
+      setPaymentSession(result as PaymentSession);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function completePayment(orderId: string) {
+    window.localStorage.removeItem(PENDING_ORDER_KEY);
+    dispatch(cartActions.clearCart());
+    router.replace(`/orders/${encodeURIComponent(orderId)}?payment=success`);
+  }
+
+  function resetPendingOrder() {
+    window.localStorage.removeItem(PENDING_ORDER_KEY);
+    setPendingOrderId(null);
+    setPaymentSession(null);
+    setIsSubmitting(false);
+    setSubmitError(null);
+    idempotencyKey.current = null;
+  }
+
+  async function cancelPendingOrder() {
+    if (!pendingOrderId) return;
+    const response = await fetch(`/api/orders/${encodeURIComponent(pendingOrderId)}/cancel`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason: "Customer cancelled checkout." }),
+    });
+    if (!response.ok) {
+      const result = await response.json() as { message?: string };
+      throw new Error(result.message ? readableApiError(result.message) : "Checkout could not be cancelled.");
+    }
+    resetPendingOrder();
+  }
+
   if (!hydrated) {
     return <section className="py-20 text-center text-[#557064]">Loading your checkout...</section>;
+  }
+
+  if (isResuming) {
+    return <section className="py-20 text-center text-[#557064]">Resuming your secure payment...</section>;
+  }
+
+  if (pendingOrderId && paymentSession && stripePromise) {
+    return <Elements key={paymentSession.clientSecret} stripe={stripePromise} options={{ clientSecret: paymentSession.clientSecret, appearance: { theme: "stripe" } }}><PaymentStep orderId={pendingOrderId} session={paymentSession} onSucceeded={() => completePayment(pendingOrderId)} onProcessing={() => router.replace(`/orders/${encodeURIComponent(pendingOrderId)}?payment=processing`)} onCancel={cancelPendingOrder} /></Elements>;
+  }
+
+  if (pendingOrderId) {
+    return <section className="mx-auto max-w-xl py-20 text-center"><h1 className="text-3xl font-bold text-[#0A3D27]">Your order is waiting for payment</h1><p className="mt-4 text-[#557064]">{stripePromise ? submitError ?? "The payment form is not ready yet." : "Stripe checkout is not configured. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY."}</p><button onClick={() => void createPaymentSession(pendingOrderId).catch((error) => { setSubmitError(error instanceof Error ? error.message : "The payment session could not be created."); setIsSubmitting(false); })} disabled={!stripePromise || isSubmitting} className="auth-button auth-button-primary mt-7 disabled:opacity-60">{isSubmitting ? "Opening payment..." : "Resume payment"}</button><button onClick={() => void cancelPendingOrder().catch((error) => setSubmitError(error instanceof Error ? error.message : "Checkout could not be cancelled."))} className="auth-button auth-button-secondary mt-3 w-full">Cancel checkout</button><p className="mt-4 text-sm text-[#637b70]">Your cart is still saved.</p></section>;
   }
 
   if (!items.length) {
